@@ -12,12 +12,13 @@ public class ControlSomeMotors extends LinearOpMode {
     public double turnPower;
     public double leftFrontPower, leftRearPower, rightFrontPower, rightRearPower;
     public double scaleFactor;
-    public boolean lowPowerMode;
+    public boolean lowPowerMode = false;
     public final double LOWPOWERSCALE = 0.5;
 
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
+        robot.arm.gripperServo.gotoInit();
 
         waitForStart();
 
@@ -30,6 +31,14 @@ public class ControlSomeMotors extends LinearOpMode {
                 lowPowerMode = false;
             }
 
+            /*if(gamepad2.a){
+                robot.arm.gripperClose();
+            } else if(gamepad2.b){
+                robot.arm.gripperOpen();
+            }*/
+
+            robot.arm.gripperServo.setPosition(gamepad2.left_trigger);
+
 
             drivePower = -gamepad1.left_stick_y;
             strafePower = gamepad1.left_stick_x;
@@ -41,6 +50,9 @@ public class ControlSomeMotors extends LinearOpMode {
             rightRearPower = drivePower - turnPower + strafePower;
 
             scaleFactor = robot.drive.scalePower(leftFrontPower, leftRearPower, rightFrontPower, rightRearPower);
+
+
+
             if(lowPowerMode){
                 scaleFactor = scaleFactor * LOWPOWERSCALE;
             }
