@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.TestCode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.drive.Robot;
+
 @Autonomous
 public class RunSomeMotors extends LinearOpMode {
     public Robot robot;

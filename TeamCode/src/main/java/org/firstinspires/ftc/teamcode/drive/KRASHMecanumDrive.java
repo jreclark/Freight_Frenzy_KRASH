@@ -72,7 +72,7 @@ public class KRASHMecanumDrive extends MecanumDrive {
 
     private TrajectoryFollower follower;
 
-    private DcMotorEx leftFront, leftRear, rightRear, rightFront;
+    public DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
 
     private BNO055IMU imu;
@@ -320,4 +320,38 @@ public class KRASHMecanumDrive extends MecanumDrive {
     public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
         return new ProfileAccelerationConstraint(maxAccel);
     }
+
+    //KRASH drive controls
+    public void stopRobot(){
+        setMotorPowers(0,0,0,0);
+    }
+
+    public double scalePower(double p1, double p2, double p3, double p4)
+    {
+        //Returns a scaling factor to normalize the input powers p1-p4 to a maximum magnitude of 1
+
+        double maxValue = Math.abs(p1);
+        double scaleFactor = 1;
+
+        //Search for the largest power magnitude
+        if (Math.abs(p2) > maxValue) {
+            maxValue = Math.abs(p2);
+        }
+        if (Math.abs(p3) > maxValue) {
+            maxValue = Math.abs(p3);
+        }
+        if (Math.abs(p4) > maxValue) {
+            maxValue = Math.abs(p4);
+        }
+
+        //If maxValue is larger than 1 return a scale factor to limit it to +1 or -1
+        if (maxValue > 1 )
+        {
+            scaleFactor = 1 / maxValue;
+        }
+
+        return  scaleFactor;
+
+    }
+
 }

@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode.TestCode;
+package org.firstinspires.ftc.teamcode.drive;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 public class Arm {
     public DcMotorEx armMotor;
@@ -33,6 +32,8 @@ public class Arm {
         }
         armMotor.setPower(0);
     }
+
+
 
     public void gripperClose(){
         gripperServo.gotoInit();

@@ -1,13 +1,13 @@
-package org.firstinspires.ftc.teamcode.TestCode;
+package org.firstinspires.ftc.teamcode.drive;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Robot {
-    public Drive drive;
+    public KRASHMecanumDrive drive;
     public Arm arm;
 
     public Robot(HardwareMap hardwareMap) {
-        drive = new Drive(hardwareMap);
+        drive = new KRASHMecanumDrive(hardwareMap);
         arm = new Arm(hardwareMap);
     }
 
