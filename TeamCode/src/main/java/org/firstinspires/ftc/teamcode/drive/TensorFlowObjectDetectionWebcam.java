@@ -118,7 +118,7 @@ public class TensorFlowObjectDetectionWebcam {
     //JOHN: The name here must match the name of the top class.
     public TensorFlowObjectDetectionWebcam(HardwareMap hmap, Telemetry telemetry) {
         hardwareMap = hmap;
-
+        this.telemetry = telemetry;
     }
 
     public void initDetector() {
@@ -182,7 +182,8 @@ public class TensorFlowObjectDetectionWebcam {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        //parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
@@ -209,7 +210,13 @@ public class TensorFlowObjectDetectionWebcam {
         //Need to update for each robot with specific values depending on camera type and location
         //in order to output actual location.
 
+        double RIGHT_CENTER = 320;
+        double MID_CENTER = 270;
+        double CENTER_TOL = 30;
+
         List<Recognition> updatedRecognitions;
+        boolean foundDuck = false;
+
 
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -237,6 +244,17 @@ public class TensorFlowObjectDetectionWebcam {
                     telemetry.addData(String.format("  centerx,centery (%d)", i), "%.03f , %.03f",
                             centerX, centerY);
                     i++;
+
+                    if(label == "Duck"){
+                        foundDuck = true;
+                        if (inTol(centerX, RIGHT_CENTER, CENTER_TOL)){
+                            markerLocation = MARKER_LOCATION.RIGHT;
+                        } else if (inTol(centerX, MID_CENTER, CENTER_TOL)){
+                            markerLocation = MARKER_LOCATION.CENTER;
+                        } else {
+                            markerLocation = MARKER_LOCATION.LEFT;
+                        }
+                    }
                 }
                 telemetry.update();
             }
@@ -246,5 +264,16 @@ public class TensorFlowObjectDetectionWebcam {
         return markerLocation;
 
 
+    }
+
+    public boolean inTol(double position, double goal, double tol){
+        double usl = goal + tol;
+        double lsl = goal - tol;
+
+        if ((position >= lsl) && (position <= usl)){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

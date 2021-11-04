@@ -16,6 +16,8 @@ public class TeleOpDrive extends LinearOpMode {
     public boolean lowPowerMode = false;
     public final double LOWPOWERSCALE = 0.5;
 
+    public ButtonState gripperButton = new ButtonState(gamepad2, ButtonState.Button.x);
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
@@ -24,6 +26,12 @@ public class TeleOpDrive extends LinearOpMode {
         waitForStart();
 
         while(!isStopRequested()){
+            if(gripperButton.newPress()){
+                //Do something on initial press.
+            } else {
+                //Don't do anything if the button is held down.
+            }
+
             driveControl();
         }
 
