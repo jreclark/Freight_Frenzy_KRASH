@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -25,6 +26,7 @@ public class DriveByEncoders {
 
     public KRASHMecanumDrive drive;
     private Telemetry telemetry;
+    private HardwareMap hardwareMap;
 
     private final String IMU_GYRO = "imu";
 
@@ -62,7 +64,8 @@ public class DriveByEncoders {
     Acceleration GyroGravity = null;
     BNO055IMU.Parameters GyroParameters = null;
 
-    public DriveByEncoders(KRASHMecanumDrive drive, Telemetry telemetry) {
+    public DriveByEncoders(HardwareMap hardwareMap, KRASHMecanumDrive drive, Telemetry telemetry) {
+        this.hardwareMap = hardwareMap;
         this.drive = drive;
         this.telemetry = telemetry;
     }

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class ServoCust {
-    private Servo servoCust;
+    public Servo servoCust;
     private double initPos = -1;
     private double pos1 = -1, pos2 = -1;
 

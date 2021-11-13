@@ -31,23 +31,23 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double WHEEL_RADIUS = 0.75; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 10; // in; distance between the left and right wheels
+    public static double LATERAL_DISTANCE = 11.75; // in; distance between the left and right wheels
     public static double LEFT_LATERAL = LATERAL_DISTANCE/2;
     public static double RIGHT_LATERAL = LATERAL_DISTANCE/2;
-    public static double FORWARD_OFFSET = -9; // in; offset of the lateral wheel
-    public static double FRONT_LATERAL_OFFSET = 0; // side-to-side offset fo the leteral wheel
+    public static double FORWARD_OFFSET = -6.75; // in; offset of the lateral wheel
+    public static double FRONT_LATERAL_OFFSET = 0; // side-to-side offset fo the lateral wheel
 
-    private Encoder leftEncoder, rightEncoder, frontEncoder;
+    public Encoder leftEncoder, rightEncoder, frontEncoder;
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap) {
         super(Arrays.asList(
-                new Pose2d(0, LEFT_LATERAL, 0), // left
+                new Pose2d(0, LEFT_LATERAL, Math.toRadians(180)), // left
                 new Pose2d(0, -RIGHT_LATERAL, 0), // right
-                new Pose2d(FORWARD_OFFSET, FRONT_LATERAL_OFFSET, Math.toRadians(90)) // front
+                new Pose2d(FORWARD_OFFSET, FRONT_LATERAL_OFFSET, Math.toRadians(-90)) // front
         ));
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "front_left"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "front_right"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "left_front"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "right_rear"));
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "left_rear"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)

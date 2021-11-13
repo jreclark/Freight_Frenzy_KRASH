@@ -26,7 +26,7 @@ public class Auton_DriveByEncoders extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
-        autoDrive = new DriveByEncoders(robot.drive, telemetry);
+        autoDrive = new DriveByEncoders(hardwareMap, robot.drive, telemetry);
         tfod = new TensorFlowObjectDetectionWebcam(hardwareMap, telemetry);
 
         tfod.initDetector();
@@ -38,6 +38,10 @@ public class Auton_DriveByEncoders extends LinearOpMode {
         }
 
 
+        while(opModeIsActive()){
+            telemetry.addData("Left Front", robot.drive.leftFront.getCurrentPosition());
+            telemetry.update();
+        }
 
     }
 }

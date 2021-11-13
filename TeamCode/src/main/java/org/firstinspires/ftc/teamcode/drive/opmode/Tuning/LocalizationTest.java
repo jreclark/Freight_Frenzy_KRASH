@@ -20,6 +20,9 @@ public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         KRASHMecanumDrive drive = new KRASHMecanumDrive(hardwareMap);
+        drive.leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
