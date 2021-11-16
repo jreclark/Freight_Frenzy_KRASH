@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.drive.Robot;
+import org.firstinspires.ftc.teamcode.drive.opmode.ButtonState;
 
 @TeleOp
 public class TeleOpDrive extends LinearOpMode {
@@ -42,39 +43,16 @@ public class TeleOpDrive extends LinearOpMode {
 
             driveControl();
 
-            //robot.arm.pivotArm(-gamepad2.left_stick_y);
-
+            //Reset arm encoder
             if(gamepad1.dpad_up && gamepad2.dpad_up){
-                robot.arm.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.arm.armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.arm.resetArmEncoder();
             }
 
             if (gamepad1.dpad_down) {
+                //Override encoder-based arm pivot
                 robot.arm.pivotArm(-gamepad2.left_stick_y);
             } else {
-                if (armIsMoving) {
-                    if (gamepad2.left_stick_y == 0) {
-                        robot.arm.pivotArm(0);
-                        armIsMoving = false;
-                    } else if (armStartedLocation <= ARM_TOP) {
-                        robot.arm.pivotArm(-gamepad2.left_stick_y);
-                    } else {
-                        robot.arm.pivotArm(gamepad2.left_stick_y);
-                    }
-                } else {
-                    if (gamepad2.left_stick_y == 0) {
-                        robot.arm.pivotArm(0);
-                        armIsMoving = false;
-                    } else if (robot.arm.armMotor.getCurrentPosition() <= ARM_TOP) {
-                        armStartedLocation = robot.arm.armMotor.getCurrentPosition();
-                        armIsMoving = true;
-                        robot.arm.pivotArm(-gamepad2.left_stick_y);
-                    } else {
-                        armStartedLocation = robot.arm.armMotor.getCurrentPosition();
-                        armIsMoving = true;
-                        robot.arm.pivotArm(gamepad2.left_stick_y);
-                    }
-                }
+                armControl();
             }
 
             robot.arm.spinArm(-gamepad2.right_stick_x);
@@ -98,7 +76,8 @@ public class TeleOpDrive extends LinearOpMode {
                 robot.drive.runCarousel(0);
             }
 
-            telemetry.addData("Motor Current:", robot.arm.intakeMotor.getCurrent(CurrentUnit.MILLIAMPS));
+            telemetry.addData("Arm Position:", robot.arm.armMotor.getCurrentPosition());
+            telemetry.addData("Arm Extension:", robot.arm.extensionMotor.getCurrentPosition());
             telemetry.update();
         }
 
@@ -136,7 +115,32 @@ public class TeleOpDrive extends LinearOpMode {
         rightRearPower = scaleFactor * rightRearPower;
 
         robot.drive.setMotorPowers(leftFrontPower, leftRearPower, rightFrontPower, rightRearPower);
+    }
 
+    private void armControl(){
+        if (armIsMoving) {
+            if (gamepad2.left_stick_y == 0) {
+                robot.arm.pivotArm(0);
+                armIsMoving = false;
+            } else if (armStartedLocation <= ARM_TOP) {
+                robot.arm.pivotArm(-gamepad2.left_stick_y);
+            } else {
+                robot.arm.pivotArm(gamepad2.left_stick_y);
+            }
+        } else {
+            if (gamepad2.left_stick_y == 0) {
+                robot.arm.pivotArm(0);
+                armIsMoving = false;
+            } else if (robot.arm.armMotor.getCurrentPosition() <= ARM_TOP) {
+                armStartedLocation = robot.arm.armMotor.getCurrentPosition();
+                armIsMoving = true;
+                robot.arm.pivotArm(-gamepad2.left_stick_y);
+            } else {
+                armStartedLocation = robot.arm.armMotor.getCurrentPosition();
+                armIsMoving = true;
+                robot.arm.pivotArm(gamepad2.left_stick_y);
+            }
+        }
     }
 
 }

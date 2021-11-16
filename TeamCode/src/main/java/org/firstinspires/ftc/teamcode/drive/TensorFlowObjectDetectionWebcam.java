@@ -77,10 +77,10 @@ public class TensorFlowObjectDetectionWebcam {
    *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
    *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
    */
-    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_BCDM.tflite";
+    private static final String TFOD_MODEL_ASSET = "FreightFrenzy_DM.tflite";
     private static final String[] LABELS = {
-      "Ball",
-      "Cube",
+      //"Ball",
+      //"Cube",
       "Duck",
       "Marker"
     };
@@ -140,7 +140,7 @@ public class TensorFlowObjectDetectionWebcam {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(2.5, 16.0/9.0);
+            tfod.setZoom(1.25, 16/9.0);
         }
 
         //Code below is for stand-alone op modes but demonstrates how to call the tfod functions
@@ -198,7 +198,7 @@ public class TensorFlowObjectDetectionWebcam {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
             "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-       tfodParameters.minResultConfidence = 0.8f;
+       tfodParameters.minResultConfidence = 0.7f;
        tfodParameters.isModelTensorFlow2 = true;
        tfodParameters.inputSize = 320;
        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -210,8 +210,8 @@ public class TensorFlowObjectDetectionWebcam {
         //Need to update for each robot with specific values depending on camera type and location
         //in order to output actual location.
 
-        double RIGHT_CENTER = 320;
-        double MID_CENTER = 270;
+        double RIGHT_CENTER = 500;
+        double MID_CENTER = 318;
         double CENTER_TOL = 30;
 
         List<Recognition> updatedRecognitions;

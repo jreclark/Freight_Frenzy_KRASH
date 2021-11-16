@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
 
 @Autonomous
-public class Red_Carousel extends LinearOpMode {
+public class Red_Carousel_Sideways extends LinearOpMode {
 
     public Robot robot;
     public TensorFlowObjectDetectionWebcam tfod;
@@ -26,15 +26,15 @@ public class Red_Carousel extends LinearOpMode {
     public Arm.HubLevel hubLevel = null;
 
 
-    Pose2d startingPose = new Pose2d(-30.5,-62.5,Math.toRadians(90));
+    Pose2d startingPose = new Pose2d(-36,-63.5,Math.toRadians(0));
     Pose2d carouselLocation = new Pose2d(-61.5, -57.5, Math.toRadians(90));
-    Pose2d dropLocation = new Pose2d(-24, -48, Math.toRadians(70));
+    Pose2d dropLocation = new Pose2d(-23, -47, Math.toRadians(70));
     Pose2d parkStorageLoc = new Pose2d(-65, -36, Math.toRadians(180)); //reversed
 
-    Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
+    //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
     Pose2d parkWarehouse1 = new Pose2d(0, -65, Math.toRadians(0));
-    Pose2d parkWarehouse2 = new Pose2d(39, -65, Math.toRadians(0));
-    Pose2d parkWarehouse3 = new Pose2d(45, -45, Math.toRadians(45));
+    Pose2d parkWarehouse2 = new Pose2d(38, -66, Math.toRadians(0));
+    Pose2d parkWarehouse3 = new Pose2d(45, -45, Math.toRadians(-45));
     Pose2d parkWarehouseEnd = new Pose2d(66, -39, Math.toRadians(-92));
 
     @Override
@@ -45,14 +45,14 @@ public class Red_Carousel extends LinearOpMode {
         robot.arm.resetEncoder(robot.arm.armMotor);
         robot.arm.resetEncoder(robot.arm.extensionMotor);
 
-        //robot.arm.useIntake(-0.2);
+        robot.arm.useIntake(-0.2);
 
-        tfod.initDetector();
+        //tfod.initDetector();
 
         robot.drive.getLocalizer().setPoseEstimate(startingPose);
 
         carousel = robot.drive.trajectoryBuilder(startingPose)
-                .lineToConstantHeading(carouselLocation.vec())
+                .lineToLinearHeading(carouselLocation)
                 .build();
 
         Trajectory backup = robot.drive.trajectoryBuilder(carousel.end())
@@ -60,7 +60,7 @@ public class Red_Carousel extends LinearOpMode {
                 .build();
 
         drop = robot.drive.trajectoryBuilder(backup.end())
-                .splineTo(dropLocation.vec(), dropLocation.getHeading())
+                .lineToLinearHeading(dropLocation)
                 .build();
 
         if (parkInStorage) {
@@ -88,7 +88,7 @@ public class Red_Carousel extends LinearOpMode {
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
         while (!isStarted()){
-            markerLocation = tfod.locateMarker();
+            //markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
         }
 
@@ -100,8 +100,6 @@ public class Red_Carousel extends LinearOpMode {
         robot.drive.runCarousel(-1.0);
         sleep(3200);
         robot.drive.runCarousel(0);
-
-        //robot.drive.followTrajectory(drop);
 
         robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(hubLevel), 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.getExtensionTarget(hubLevel), 0.8, 5);
@@ -123,6 +121,7 @@ public class Red_Carousel extends LinearOpMode {
         if(!parkInStorage){
             robot.drive.followTrajectory(park1);
             robot.drive.followTrajectory(park2);
+            robot.drive.followTrajectory(park3);
 
             robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
             robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
