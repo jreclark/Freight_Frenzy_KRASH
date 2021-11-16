@@ -1,13 +1,14 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.TestCode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.drive.Robot;
+import org.firstinspires.ftc.teamcode.util.ButtonState;
 
 @TeleOp
+@Disabled
 public class MotorTest extends LinearOpMode {
     public Robot robot;
     public double drivePower;
@@ -21,12 +22,6 @@ public class MotorTest extends LinearOpMode {
     public final double LOWPOWERSCALE = 0.5;
     public final double CAROUSEL_POWER = 1.0;
     public final int ARM_TOP = 4000;
-
-    public enum armState {
-        UP,
-        DOWN,
-        STOPPED
-    }
 
 
     public ButtonState gripperButton = new ButtonState(gamepad2, ButtonState.Button.x);

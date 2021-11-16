@@ -39,10 +39,11 @@ public class Arm {
         IN,
         HOLD_IN,
         OUT,
-        HOLD_OUT
+        HOLD_OUT    //This value probably doesn't make any sense
     }
 
-    private IntakeState intakeState = IntakeState.OFF;
+    public IntakeState intakeState = IntakeState.OFF;
+    private double lastIntakePwr = 0;
 
     public enum HubLevel {
         TOP,
@@ -94,7 +95,14 @@ public class Arm {
     }
 
     public void useIntake(double power) {
+
         intakeMotor.setPower(power);
+        lastIntakePwr = power;
+
+        if (power < 0){intakeState = IntakeState.IN;}
+        else if (power > 0){ intakeState = IntakeState.OUT;}
+        else {intakeState = IntakeState.OFF;}
+
     }
 
     public void extendArm(double power) {
@@ -246,16 +254,37 @@ public class Arm {
         switch (intakeState){
             case OFF:
                 useIntake(power);
+                lastIntakePwr = power;
                 if(power < 0) {intakeState = IntakeState.IN;}
                 else if (power > 0) {intakeState = IntakeState.OUT;}
                 else {intakeState = IntakeState.OFF;}
                 return false;
             case IN:
-                if(Math.abs(intakeMotor.getCurrent(CurrentUnit.MILLIAMPS)) > 1000){
-                    useIntake(-HOLD_POWER);
-                    intakeState = IntakeState.HOLD_IN;
-                    return true;
-                } else {return false;}
+                //
+                if (power < 0) {
+                    if (Math.abs(intakeMotor.getCurrent(CurrentUnit.MILLIAMPS)) > 1000) {
+                        useIntake(-HOLD_POWER);
+                        intakeState = IntakeState.HOLD_IN;
+                        return true;
+                    } else if (power > 0) {
+                        useIntake(power);
+                        return false;
+                    } else if (power < 0 && power < lastIntakePwr) {
+                        useIntake(power);
+                        return false;
+                    }
+
+
+                } else if (power > 0) {
+                    useIntake(power);
+                    return false;
+                } else {
+                    return false;
+                }
+            case OUT:
+                if (power >0){
+
+                }
         }
 
         return false;

@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.drive.opmode.ARCHIVE;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.DriveByEncoders;
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
 
 @Autonomous
+@Disabled
 public class Auton_DriveByEncoders extends LinearOpMode {
 
     public Robot robot;
