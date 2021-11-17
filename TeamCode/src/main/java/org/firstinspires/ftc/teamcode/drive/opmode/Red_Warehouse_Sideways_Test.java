@@ -8,9 +8,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.drive.Arm;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous
-public class Red_Warehouse_Sideways extends LinearOpMode {
+public class Red_Warehouse_Sideways_Test extends LinearOpMode {
 
     public Robot robot;
     public TensorFlowObjectDetectionWebcam tfod;
@@ -65,6 +66,14 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
         park1 = robot.drive.trajectoryBuilder(park.end())
                 .lineTo(parkWarehouse2.vec())
                 .build();
+        TrajectorySequence parkSequence = robot.drive.trajectorySequenceBuilder(drop.end())
+                .lineToLinearHeading(parkWarehouse1)
+                .lineTo(parkWarehouse2.vec())
+                .build();
+
+        Trajectory grab = robot.drive.trajectoryBuilder(park1.end())
+                .splineTo(grab1.vec(), grab1.getHeading())
+                .build();
 
 
 
@@ -86,20 +95,14 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
         robot.arm.spitIntake();
         sleep(500);
 
-        robot.drive.followTrajectory(park);
-
-        robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
         robot.arm.useIntake(-0.8);
-        robot.drive.followTrajectoryAsync(park1);
+        robot.drive.followTrajectorySequenceAsync(parkSequence);
 
         while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
             robot.drive.update();
         }
-
-        Trajectory grab = robot.drive.trajectoryBuilder(park1.end())
-                .splineTo(grab1.vec(), grab1.getHeading())
-                .build();
 
         robot.drive.followTrajectory(grab);
 
@@ -139,19 +142,14 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
             robot.drive.followTrajectory(park);
         }
 
-        park1 = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
+
+        parkSequence = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
                 .lineTo(parkWarehouse2.vec())
-                .build();
-        park2 = robot.drive.trajectoryBuilder(park1.end())
                 .lineToLinearHeading(parkWarehouse3)
-                .build();
-        park3 = robot.drive.trajectoryBuilder(park2.end())
                 .lineToLinearHeading(parkWarehouseEnd)
                 .build();
 
-        robot.drive.followTrajectory(park1);
-        robot.drive.followTrajectory(park2);
-        robot.drive.followTrajectory(park3);
+        robot.drive.followTrajectorySequence(parkSequence);
 
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
