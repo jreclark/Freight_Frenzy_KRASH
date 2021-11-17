@@ -18,7 +18,9 @@ public class ButtonState {
         start,
         back,
         left_bumper,
-        right_bumper;
+        right_bumper,
+        right_trigger,
+        left_trigger;
     }
 
     public boolean buttonHeld = false;
@@ -79,6 +81,12 @@ public class ButtonState {
                 break;
             case right_stick_button:
                 buttonPress = gamepad.right_stick_button;
+                break;
+            case right_trigger:
+                buttonPress = (gamepad.right_trigger > 0);
+                break;
+            case left_trigger:
+                buttonPress = (gamepad.left_trigger > 0);
                 break;
         }
 

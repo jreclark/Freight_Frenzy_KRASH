@@ -99,9 +99,13 @@ public class Arm {
         intakeMotor.setPower(power);
         lastIntakePwr = power;
 
-        if (power < 0){intakeState = IntakeState.IN;}
-        else if (power > 0){ intakeState = IntakeState.OUT;}
-        else {intakeState = IntakeState.OFF;}
+        if (power < 0) {
+            intakeState = IntakeState.IN;
+        } else if (power > 0) {
+            intakeState = IntakeState.OUT;
+        } else {
+            intakeState = IntakeState.OFF;
+        }
 
     }
 
@@ -114,12 +118,12 @@ public class Arm {
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void resetEncoder(DcMotorEx motor){
+    public void resetEncoder(DcMotorEx motor) {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public int getArmTarget(HubLevel hubLevel){
+    public int getArmTarget(HubLevel hubLevel) {
         switch (hubLevel) {
             case TOP:
                 return TOP_HUB_COUNTS;
@@ -161,11 +165,11 @@ public class Arm {
         return false;
     }
 
-    public boolean armIsBusy(){
+    public boolean armIsBusy() {
         return moveArmToTarget(MovingMode.RUNNING, 0, 0, 0);
     }
 
-    public int getExtensionTarget(HubLevel hubLevel){
+    public int getExtensionTarget(HubLevel hubLevel) {
         switch (hubLevel) {
             case TOP:
                 return TOP_EXTENSION_COUNTS;
@@ -206,12 +210,12 @@ public class Arm {
         return false;
     }
 
-    public boolean extensionIsBusy(){
+    public boolean extensionIsBusy() {
         return moveArmToTarget(MovingMode.RUNNING, 0, 0, 0);
     }
 
-    public HubLevel markerToLevel (TensorFlowObjectDetectionWebcam.MARKER_LOCATION markerLocation){
-        switch (markerLocation){
+    public HubLevel markerToLevel(TensorFlowObjectDetectionWebcam.MARKER_LOCATION markerLocation) {
+        switch (markerLocation) {
             case LEFT:
                 return HubLevel.BOTTOM;
             case CENTER:
@@ -222,18 +226,18 @@ public class Arm {
         return null;
     }
 
-    public void spitIntake(){
+    public void spitIntake() {
         useIntake(0.8);
         sleep(500);
         useIntake(0);
     }
 
-    public boolean intakeSense(double timeout){
+    public boolean intakeSense(double timeout) {
         double startTime = clock.seconds();
         useIntake(-0.8);
-        while (intakeMotor.getCurrent(CurrentUnit.MILLIAMPS) < 1000 && (clock.seconds() - startTime) < timeout){
+        while (intakeMotor.getCurrent(CurrentUnit.MILLIAMPS) < 1000 && (clock.seconds() - startTime) < timeout) {
         }
-        if(intakeMotor.getCurrent(CurrentUnit.MILLIAMPS) > 1000){
+        if (intakeMotor.getCurrent(CurrentUnit.MILLIAMPS) > 1000) {
             useIntake(-0.2);
             return true;
         } else {
@@ -243,7 +247,7 @@ public class Arm {
 
     }
 
-    public boolean intakeSenseAsync(double power){
+    public boolean intakeSenseAsync(double power) {
         /**
          * Note negative power is intake for "normal" arm position.
          */
@@ -251,13 +255,17 @@ public class Arm {
 
         double HOLD_POWER = 0.2;
 
-        switch (intakeState){
+        switch (intakeState) {
             case OFF:
                 useIntake(power);
                 lastIntakePwr = power;
-                if(power < 0) {intakeState = IntakeState.IN;}
-                else if (power > 0) {intakeState = IntakeState.OUT;}
-                else {intakeState = IntakeState.OFF;}
+                if (power < 0) {
+                    intakeState = IntakeState.IN;
+                } else if (power > 0) {
+                    intakeState = IntakeState.OUT;
+                } else {
+                    intakeState = IntakeState.OFF;
+                }
                 return false;
             case IN:
                 //
@@ -266,15 +274,12 @@ public class Arm {
                         useIntake(-HOLD_POWER);
                         intakeState = IntakeState.HOLD_IN;
                         return true;
-                    } else if (power > 0) {
+                    } else if (power < lastIntakePwr) {
                         useIntake(power);
                         return false;
-                    } else if (power < 0 && power < lastIntakePwr) {
-                        useIntake(power);
+                    } else {
                         return false;
                     }
-
-
                 } else if (power > 0) {
                     useIntake(power);
                     return false;
@@ -282,11 +287,17 @@ public class Arm {
                     return false;
                 }
             case OUT:
-                if (power >0){
-
+                useIntake(power);
+                return false;
+            case HOLD_IN:
+                if (power > 0) {
+                    useIntake(power);
+                    return false;
                 }
+            default:
+                return false;
+
         }
 
-        return false;
     }
 }

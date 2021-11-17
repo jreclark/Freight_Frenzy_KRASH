@@ -21,6 +21,8 @@ public class TeleOpDrive extends LinearOpMode {
     public final double CAROUSEL_POWER = 1.0;
     public final int ARM_TOP = 4000;
 
+    public ButtonState rightTrigger = new ButtonState(gamepad2, ButtonState.Button.right_trigger);
+
     public enum armState {
         UP,
         DOWN,
