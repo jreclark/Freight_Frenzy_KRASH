@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode.ARCHIVE;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.Arm;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
 
 @Autonomous
+@Disabled
 public class Red_Warehouse extends LinearOpMode {
 
     public Robot robot;

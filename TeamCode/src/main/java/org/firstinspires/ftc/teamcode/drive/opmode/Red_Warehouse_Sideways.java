@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.drive.Arm;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
@@ -26,7 +27,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
     public Arm.HubLevel hubLevel = null;
 
 
-    Pose2d startingPose = new Pose2d(12, -63.5, Math.toRadians(0));
+    Pose2d startingPose = new Pose2d(10, -63.5, Math.toRadians(0));
     Pose2d dropLocation = new Pose2d(-2, -46, Math.toRadians(120));
 
 
@@ -47,7 +48,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
         robot.arm.resetEncoder(robot.arm.armMotor);
         robot.arm.resetEncoder(robot.arm.extensionMotor);
 
-        //tfod.initDetector();
+        tfod.initDetector();
 
         robot.arm.useIntake(-0.2);
 
@@ -69,9 +70,11 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
 
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
-        while (!isStarted()) {
-            //markerLocation = tfod.locateMarker();
+        while (!isStarted() && !isStopRequested()) {
+            markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
+            telemetry.addData("Marker Location:", markerLocation);
+            telemetry.update();
         }
 
         //Initial Drop
@@ -133,7 +136,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
             sleep(500);
 
             park = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
-                    .lineToLinearHeading(parkWarehouse1)
+                    .lineToLinearHeading(new Pose2d(parkWarehouse1.getX(), parkWarehouse1.getY(), parkWarehouse1.getHeading() - Math.toRadians(-2.0)))
                     .build();
 
             robot.drive.followTrajectory(park);
@@ -175,7 +178,11 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
             while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             }
         }
+
+        tfod.shutdown();
     }
+
+
 
 
 }

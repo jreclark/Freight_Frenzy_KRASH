@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.util.ButtonState;
 
 @TeleOp
-@Disabled
+//@Disabled
 public class MotorTest extends LinearOpMode {
     public Robot robot;
     public double drivePower;

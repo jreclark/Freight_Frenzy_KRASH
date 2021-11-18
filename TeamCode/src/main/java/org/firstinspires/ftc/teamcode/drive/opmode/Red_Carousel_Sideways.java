@@ -26,7 +26,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
     public Arm.HubLevel hubLevel = null;
 
 
-    Pose2d startingPose = new Pose2d(-36,-63.5,Math.toRadians(0));
+    Pose2d startingPose = new Pose2d(-38,-63.5,Math.toRadians(0));
     Pose2d carouselLocation = new Pose2d(-61.5, -57.5, Math.toRadians(90));
     Pose2d dropLocation = new Pose2d(-23, -47, Math.toRadians(70));
     Pose2d parkStorageLoc = new Pose2d(-65, -36, Math.toRadians(180)); //reversed
@@ -47,7 +47,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
 
         robot.arm.useIntake(-0.2);
 
-        //tfod.initDetector();
+        tfod.initDetector();
 
         robot.drive.getLocalizer().setPoseEstimate(startingPose);
 
@@ -87,9 +87,11 @@ public class Red_Carousel_Sideways extends LinearOpMode {
         }
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
-        while (!isStarted()){
-            //markerLocation = tfod.locateMarker();
+        while (!isStarted() && !isStopRequested()){
+            markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
+            telemetry.addData("Marker Location:", markerLocation);
+            telemetry.update();
         }
 
         //Basic Drive

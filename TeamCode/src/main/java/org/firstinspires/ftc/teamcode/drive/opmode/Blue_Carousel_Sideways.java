@@ -26,16 +26,16 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
     public Arm.HubLevel hubLevel = null;
 
 
-    Pose2d startingPose = new Pose2d(-36,63.5,Math.toRadians(180));
-    Pose2d carouselLocation = new Pose2d(-61.5, 57.5, Math.toRadians(-90));
-    Pose2d dropLocation = new Pose2d(-23, 47, Math.toRadians(-70));
-    Pose2d parkStorageLoc = new Pose2d(-65, 36, Math.toRadians(180)); //reversed
+    Pose2d startingPose = new Pose2d(-36,63.5,Math.toRadians(179.99));
+    Pose2d carouselLocation = new Pose2d(-61.5, 55, Math.toRadians(0));
+    Pose2d dropLocation = new Pose2d(-24, 44, Math.toRadians(-70));
+    Pose2d parkStorageLoc = new Pose2d(-65, 33, Math.toRadians(180)); //reversed
 
     //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
     Pose2d parkWarehouse1 = new Pose2d(0, 65, Math.toRadians(0));
-    Pose2d parkWarehouse2 = new Pose2d(38, 66, Math.toRadians(0));
+    Pose2d parkWarehouse2 = new Pose2d(39, 66, Math.toRadians(0));
     Pose2d parkWarehouse3 = new Pose2d(45, 45, Math.toRadians(45));
-    Pose2d parkWarehouseEnd = new Pose2d(66, 39, Math.toRadians(92));
+    Pose2d parkWarehouseEnd = new Pose2d(66, 35, Math.toRadians(92));
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -45,9 +45,9 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
         robot.arm.resetEncoder(robot.arm.armMotor);
         robot.arm.resetEncoder(robot.arm.extensionMotor);
 
-        robot.arm.useIntake(-0.2);
+        tfod.initDetector();
 
-        //tfod.initDetector();
+        robot.arm.useIntake(-0.2);
 
         robot.drive.getLocalizer().setPoseEstimate(startingPose);
 
@@ -56,7 +56,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
                 .build();
 
         Trajectory backup = robot.drive.trajectoryBuilder(carousel.end())
-                .back(1.5)
+                .strafeLeft(2.0)
                 .build();
 
         drop = robot.drive.trajectoryBuilder(backup.end())
@@ -88,8 +88,10 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
         while (!isStarted()){
-            //markerLocation = tfod.locateMarker();
+            markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
+            telemetry.addData("Marker Location:", markerLocation);
+            telemetry.update();
         }
 
         //Basic Drive
@@ -97,7 +99,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
 
         robot.drive.followTrajectory(backup);
 
-        robot.drive.runCarousel(-1.0);
+        robot.drive.runCarousel(1.0);
         sleep(3200);
         robot.drive.runCarousel(0);
 
@@ -147,9 +149,6 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
             }
         }
 
-        sleep(5000);
-
-
-
+        tfod.shutdown();
     }
 }

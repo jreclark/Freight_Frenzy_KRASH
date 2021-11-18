@@ -26,11 +26,11 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
     public Arm.HubLevel hubLevel = null;
 
 
-    Pose2d startingPose = new Pose2d(12, 63.5, Math.toRadians(0));
-    Pose2d dropLocation = new Pose2d(-2, 46, Math.toRadians(-120));
+    Pose2d startingPose = new Pose2d(14, 63.5, Math.toRadians(-179.99));
+    Pose2d dropLocation = new Pose2d(-2, 43, Math.toRadians(-120));
 
 
-    Pose2d parkWarehouse1 = new Pose2d(12, 65, Math.toRadians(0));
+    Pose2d parkWarehouse1 = new Pose2d(10, 65, Math.toRadians(0));
     Pose2d parkWarehouse2 = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d parkWarehouse3 = new Pose2d(45, 45, Math.toRadians(45));
     Pose2d parkWarehouseEnd = new Pose2d(66, 39, Math.toRadians(92));
@@ -47,7 +47,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         robot.arm.resetEncoder(robot.arm.armMotor);
         robot.arm.resetEncoder(robot.arm.extensionMotor);
 
-        //tfod.initDetector();
+        tfod.initDetector();
 
         robot.arm.useIntake(-0.2);
 
@@ -72,6 +72,8 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         while (!isStarted()) {
             //markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
+            telemetry.addData("Marker Location:", markerLocation);
+            telemetry.update();
         }
 
         //Initial Drop
