@@ -173,7 +173,11 @@ public class Red_Warehouse_Sideways_Test extends LinearOpMode {
             while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             }
         }
+
+        tfod.shutdown();
+
     }
+
 
 
 }

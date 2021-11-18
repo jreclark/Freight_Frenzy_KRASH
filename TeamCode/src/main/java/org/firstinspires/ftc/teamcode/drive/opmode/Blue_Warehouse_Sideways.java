@@ -179,6 +179,9 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             }
         }
+
+        tfod.shutdown();
+
     }
 
 

@@ -90,6 +90,15 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
         while (!isStarted()){
             markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
+
+            if (gamepad1.dpad_up){
+                parkInStorage = true;
+                telemetry.addLine("Park in Storage");
+            } else if (gamepad1.dpad_down){
+                parkInStorage = false;
+                telemetry.addLine("Park in Warehouse");
+            }
+
             telemetry.addData("Marker Location:", markerLocation);
             telemetry.update();
         }

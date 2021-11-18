@@ -90,6 +90,15 @@ public class Red_Carousel_Sideways extends LinearOpMode {
         while (!isStarted() && !isStopRequested()){
             markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
+
+            if (gamepad1.dpad_up){
+                parkInStorage = true;
+                telemetry.addLine("Park in Storage");
+            } else if (gamepad1.dpad_down){
+                parkInStorage = false;
+                telemetry.addLine("Park in Warehouse");
+            }
+
             telemetry.addData("Marker Location:", markerLocation);
             telemetry.update();
         }
@@ -149,9 +158,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
             }
         }
 
-        sleep(5000);
-
-
+        tfod.shutdown();
 
     }
 }
