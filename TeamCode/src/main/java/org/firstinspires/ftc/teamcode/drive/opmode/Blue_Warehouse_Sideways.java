@@ -26,11 +26,11 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
     public Arm.HubLevel hubLevel = null;
 
 
-    Pose2d startingPose = new Pose2d(14, 63.5, Math.toRadians(-179.99));
-    Pose2d dropLocation = new Pose2d(-2, 43, Math.toRadians(-120));
+    Pose2d startingPose = new Pose2d(13, 63, Math.toRadians(-179.99));
+    Pose2d dropLocation = new Pose2d(0, 42, Math.toRadians(-120));
 
 
-    Pose2d parkWarehouse1 = new Pose2d(10, 65, Math.toRadians(0));
+    Pose2d parkWarehouse1 = new Pose2d(10, 65, Math.toRadians(2));
     Pose2d parkWarehouse2 = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d parkWarehouse3 = new Pose2d(45, 45, Math.toRadians(45));
     Pose2d parkWarehouseEnd = new Pose2d(66, 39, Math.toRadians(92));
@@ -40,7 +40,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
     Pose2d backup1 = new Pose2d(10, 65, Math.toRadians(0));
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         robot = new Robot(hardwareMap);
         tfod = new TensorFlowObjectDetectionWebcam(hardwareMap, telemetry);
 
@@ -70,8 +70,9 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
         while (!isStarted()) {
-            //markerLocation = tfod.locateMarker();
+            markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
+            telemetry.addData("Centerx: ", tfod.getCenterTrack());
             telemetry.addData("Marker Location:", markerLocation);
             telemetry.update();
         }
@@ -109,7 +110,8 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         telemetry.addData("Got block:", gotIt);
         telemetry.update();
 
-        gotIt = true;
+        //Uncomment the line below to skip cycling and park in the warehouse near the shared hub
+        //gotIt = false;
 
         if (gotIt) {
             Trajectory backout = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate(), true)

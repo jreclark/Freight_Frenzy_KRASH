@@ -66,6 +66,8 @@ public class TensorFlowObjectDetectionWebcam {
 
     private Telemetry telemetry;
 
+    public double centerTrack = 0;
+
   /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
    * the following 4 detectable objects
    *  0: Ball,
@@ -198,7 +200,7 @@ public class TensorFlowObjectDetectionWebcam {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
             "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-       tfodParameters.minResultConfidence = 0.75f;
+       tfodParameters.minResultConfidence = 0.72f;
        tfodParameters.isModelTensorFlow2 = true;
        tfodParameters.inputSize = 320;
        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
@@ -210,10 +212,10 @@ public class TensorFlowObjectDetectionWebcam {
         //Need to update for each robot with specific values depending on camera type and location
         //in order to output actual location.
 
-        double RIGHT_CENTER = 630;
+        double RIGHT_CENTER = 615;
         double MID_CENTER = 390;
-        double LEFT_CENTER = 190;
-        double CENTER_TOL = 30;
+        double LEFT_CENTER = 180;
+        double CENTER_TOL = 50;
 
         List<Recognition> updatedRecognitions;
         boolean foundDuck = false;
@@ -247,6 +249,7 @@ public class TensorFlowObjectDetectionWebcam {
                     i++;
 
                     if(label == "Duck"){
+                        centerTrack = centerX;
                         foundDuck = true;
                         if (inTol(centerX, RIGHT_CENTER, CENTER_TOL)){
                             markerLocation = MARKER_LOCATION.RIGHT;
@@ -283,5 +286,9 @@ public class TensorFlowObjectDetectionWebcam {
     public void shutdown(){
         tfod.shutdown();
         vuforia.close();
+    }
+
+    public double getCenterTrack(){
+        return centerTrack;
     }
 }

@@ -28,8 +28,8 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
 
     Pose2d startingPose = new Pose2d(-36,63.5,Math.toRadians(179.99));
     Pose2d carouselLocation = new Pose2d(-61.5, 55, Math.toRadians(0));
-    Pose2d dropLocation = new Pose2d(-24, 44, Math.toRadians(-70));
-    Pose2d parkStorageLoc = new Pose2d(-65, 33, Math.toRadians(180)); //reversed
+    Pose2d dropLocation = new Pose2d(-23, 43, Math.toRadians(-70));
+    Pose2d parkStorageLoc = new Pose2d(-67, 34, Math.toRadians(0)); //reversed
 
     //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
     Pose2d parkWarehouse1 = new Pose2d(0, 65, Math.toRadians(0));
@@ -56,19 +56,19 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
                 .build();
 
         Trajectory backup = robot.drive.trajectoryBuilder(carousel.end())
-                .strafeLeft(2.0)
+                .strafeLeft(2.5)
                 .build();
 
         drop = robot.drive.trajectoryBuilder(backup.end())
                 .lineToLinearHeading(dropLocation)
                 .build();
 
-        if (parkInStorage) {
+
             //Storage park
-            park = robot.drive.trajectoryBuilder(drop.end(), true)
-                    .splineTo(parkStorageLoc.vec(), parkStorageLoc.getHeading())
+            Trajectory parkStore = robot.drive.trajectoryBuilder(drop.end(), true)
+                    .lineToLinearHeading(parkStorageLoc)
                     .build();
-        } else {
+
             //Warehouse park
             park = robot.drive.trajectoryBuilder(drop.end())
                     .lineToLinearHeading(parkWarehouse1)
@@ -84,20 +84,23 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
             park3 = robot.drive.trajectoryBuilder(park2.end())
                     .lineToLinearHeading(parkWarehouseEnd)
                     .build();
-        }
+
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
-        while (!isStarted()){
+        while (!isStarted() && !isStopRequested()){
+            String parkText;
             markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
 
             if (gamepad1.dpad_up){
                 parkInStorage = true;
                 telemetry.addLine("Park in Storage");
+                parkText =  "Park in Storage";
             } else if (gamepad1.dpad_down){
                 parkInStorage = false;
                 telemetry.addLine("Park in Warehouse");
             }
+
 
             telemetry.addData("Marker Location:", markerLocation);
             telemetry.update();
@@ -123,14 +126,25 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
         robot.arm.spitIntake();
 
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
-        robot.drive.followTrajectoryAsync(park);
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, 600, 0.8, 5);
+
+        if(parkInStorage) {
+            robot.drive.followTrajectoryAsync(parkStore);
+        } else {
+            robot.drive.followTrajectoryAsync(park);
+        }
+
 
         while(robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             robot.drive.update();
         }
 
         if(!parkInStorage){
-            robot.drive.followTrajectory(park1);
+            //You can insert a delay here if the other team needs time to move first
+            //Uncomment the sleep line below
+            //sleep(1000);  //This will sleep 1s
+
+            robot.drive.followTrajectory(park1);  //Comment out everything AFTER this line to just stop in the entrance to the warehouse
             robot.drive.followTrajectory(park2);
             robot.drive.followTrajectory(park3);
 

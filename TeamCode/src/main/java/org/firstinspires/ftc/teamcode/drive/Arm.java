@@ -19,11 +19,11 @@ public class Arm {
 
     public final int TOP_HUB_COUNTS = 2020;
     public final int MIDDLE_HUB_COUNTS = 1600;
-    public final int BOTTOM_HUB_COUNTS = 1000;
+    public final int BOTTOM_HUB_COUNTS = 1200;
 
     public final int TOP_EXTENSION_COUNTS = -475;
     public final int MIDDLE_EXTENSION_COUNTS = -350;
-    public final int BOTTOM_EXTENSION_COUNTS = -300;
+    public final int BOTTOM_EXTENSION_COUNTS = -310;
 
     private NanoClock clock = NanoClock.system();
 

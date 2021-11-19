@@ -28,8 +28,8 @@ public class Red_Carousel_Sideways extends LinearOpMode {
 
     Pose2d startingPose = new Pose2d(-38,-63.5,Math.toRadians(0));
     Pose2d carouselLocation = new Pose2d(-61.5, -57.5, Math.toRadians(90));
-    Pose2d dropLocation = new Pose2d(-23, -47, Math.toRadians(70));
-    Pose2d parkStorageLoc = new Pose2d(-65, -36, Math.toRadians(180)); //reversed
+    Pose2d dropLocation = new Pose2d(-21.5, -46.5, Math.toRadians(70));
+    Pose2d parkStorageLoc = new Pose2d(-65, -31, Math.toRadians(0)); //reversed
 
     //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
     Pose2d parkWarehouse1 = new Pose2d(0, -65, Math.toRadians(0));
@@ -63,12 +63,11 @@ public class Red_Carousel_Sideways extends LinearOpMode {
                 .lineToLinearHeading(dropLocation)
                 .build();
 
-        if (parkInStorage) {
             //Storage park
-            park = robot.drive.trajectoryBuilder(drop.end(), true)
-                    .splineTo(parkStorageLoc.vec(), parkStorageLoc.getHeading())
+            Trajectory parkStore = robot.drive.trajectoryBuilder(drop.end(), true)
+                    .lineToLinearHeading(parkStorageLoc)
                     .build();
-        } else {
+
             //Warehouse park
             park = robot.drive.trajectoryBuilder(drop.end())
                     .lineToLinearHeading(parkWarehouse1)
@@ -84,7 +83,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
             park3 = robot.drive.trajectoryBuilder(park2.end())
                     .lineToLinearHeading(parkWarehouseEnd)
                     .build();
-        }
+
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
         while (!isStarted() && !isStopRequested()){
@@ -123,14 +122,23 @@ public class Red_Carousel_Sideways extends LinearOpMode {
         robot.arm.spitIntake();
 
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
-        robot.drive.followTrajectoryAsync(park);
+
+        if(parkInStorage) {
+            robot.drive.followTrajectoryAsync(parkStore);
+        } else {
+            robot.drive.followTrajectoryAsync(park);
+        }
 
         while(robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             robot.drive.update();
         }
 
         if(!parkInStorage){
-            robot.drive.followTrajectory(park1);
+            //You can insert a delay here if the other team needs time to move first
+            //Uncomment the sleep line below
+            //sleep(1000);  //This will sleep 1s
+
+            robot.drive.followTrajectory(park1);  //Comment out everything AFTER this line to just stop in the entrance to the warehouse
             robot.drive.followTrajectory(park2);
             robot.drive.followTrajectory(park3);
 
