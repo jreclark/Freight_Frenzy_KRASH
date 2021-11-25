@@ -27,12 +27,12 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
 
 
     Pose2d startingPose = new Pose2d(-36,63.5,Math.toRadians(179.99));
-    Pose2d carouselLocation = new Pose2d(-61.5, 55, Math.toRadians(0));
-    Pose2d dropLocation = new Pose2d(-23, 43, Math.toRadians(-70));
+    Pose2d carouselLocation = new Pose2d(-62.5, 55, Math.toRadians(0));
+    Pose2d dropLocation = new Pose2d(-23.5, 44, Math.toRadians(-70));
     Pose2d parkStorageLoc = new Pose2d(-67, 34, Math.toRadians(0)); //reversed
 
     //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
-    Pose2d parkWarehouse1 = new Pose2d(0, 65, Math.toRadians(0));
+    Pose2d parkWarehouse1 = new Pose2d(-12, 65, Math.toRadians(0));
     Pose2d parkWarehouse2 = new Pose2d(39, 66, Math.toRadians(0));
     Pose2d parkWarehouse3 = new Pose2d(45, 45, Math.toRadians(45));
     Pose2d parkWarehouseEnd = new Pose2d(66, 35, Math.toRadians(92));
@@ -56,7 +56,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
                 .build();
 
         Trajectory backup = robot.drive.trajectoryBuilder(carousel.end())
-                .strafeLeft(2.5)
+                .strafeLeft(3)
                 .build();
 
         drop = robot.drive.trajectoryBuilder(backup.end())
@@ -112,7 +112,8 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
         robot.drive.followTrajectory(backup);
 
         robot.drive.runCarousel(1.0);
-        sleep(3200);
+        sleep(4200);
+
         robot.drive.runCarousel(0);
 
         robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(hubLevel), 0.8, 5);
@@ -126,7 +127,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
         robot.arm.spitIntake();
 
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
-        robot.arm.moveArmToTarget(Arm.MovingMode.START, 600, 0.8, 5);
+        //robot.arm.moveArmToTarget(Arm.MovingMode.START, 1000, 0.8, 5);
 
         if(parkInStorage) {
             robot.drive.followTrajectoryAsync(parkStore);
@@ -145,6 +146,13 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
             //sleep(1000);  //This will sleep 1s
 
             robot.drive.followTrajectory(park1);  //Comment out everything AFTER this line to just stop in the entrance to the warehouse
+
+            Trajectory strafeToWall = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
+                    .strafeLeft(3)
+                    .build();
+
+            robot.drive.followTrajectory(strafeToWall);
+
             robot.drive.followTrajectory(park2);
             robot.drive.followTrajectory(park3);
 
@@ -166,7 +174,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
             telemetry.update();
 
             if(gotIt){
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, 1500, 0.8, 5);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 3000, 0.8, 5);
                 while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
                 }
             }

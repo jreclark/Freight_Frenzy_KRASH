@@ -17,11 +17,11 @@ public class Arm {
 
     final double TICKS_PER_REV = 5281.1;
 
-    public final int TOP_HUB_COUNTS = 2020;
+    public final int TOP_HUB_COUNTS = 2080;
     public final int MIDDLE_HUB_COUNTS = 1600;
     public final int BOTTOM_HUB_COUNTS = 1200;
 
-    public final int TOP_EXTENSION_COUNTS = -475;
+    public final int TOP_EXTENSION_COUNTS = -465;
     public final int MIDDLE_EXTENSION_COUNTS = -350;
     public final int BOTTOM_EXTENSION_COUNTS = -310;
 

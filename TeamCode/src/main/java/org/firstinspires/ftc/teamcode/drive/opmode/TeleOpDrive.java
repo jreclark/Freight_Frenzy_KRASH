@@ -62,7 +62,7 @@ public class TeleOpDrive extends LinearOpMode {
             if(gamepad2.right_trigger>0){
                 robot.arm.useIntake(-gamepad2.right_trigger);
             } else if (gamepad2.left_trigger >0){
-                robot.arm.useIntake(gamepad2.left_trigger);
+                robot.arm.useIntake(gamepad2.left_trigger * .75);
             } else {
                 robot.arm.useIntake(0);
             }

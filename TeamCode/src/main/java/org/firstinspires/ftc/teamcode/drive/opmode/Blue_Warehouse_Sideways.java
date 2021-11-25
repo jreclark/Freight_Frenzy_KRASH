@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.drive.Arm;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous
 public class Blue_Warehouse_Sideways extends LinearOpMode {
@@ -27,17 +28,17 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
 
 
     Pose2d startingPose = new Pose2d(13, 63, Math.toRadians(-179.99));
-    Pose2d dropLocation = new Pose2d(0, 42, Math.toRadians(-120));
+    Pose2d dropLocation = new Pose2d(0.5, 42.5, Math.toRadians(-120));
 
 
-    Pose2d parkWarehouse1 = new Pose2d(10, 65, Math.toRadians(2));
+    Pose2d parkWarehouse1 = new Pose2d(10, 65, Math.toRadians(0));
     Pose2d parkWarehouse2 = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d parkWarehouse3 = new Pose2d(45, 45, Math.toRadians(45));
     Pose2d parkWarehouseEnd = new Pose2d(66, 39, Math.toRadians(92));
 
     Pose2d grab1 = new Pose2d(48, 66, Math.toRadians(0));
 
-    Pose2d backup1 = new Pose2d(10, 65, Math.toRadians(0));
+    Pose2d backup1 = new Pose2d(8, 65, Math.toRadians(0));
 
     @Override
     public void runOpMode() {
@@ -90,6 +91,11 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         sleep(500);
 
         robot.drive.followTrajectory(park);
+        Trajectory strafeToWall = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
+                .strafeLeft(5)
+                .build();
+
+        robot.drive.followTrajectory(strafeToWall);
 
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
@@ -156,6 +162,13 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
                 .build();
 
         robot.drive.followTrajectory(park1);
+
+        strafeToWall = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
+                .strafeLeft(5)
+                .build();
+
+        robot.drive.followTrajectory(strafeToWall);
+
         robot.drive.followTrajectory(park2);
         robot.drive.followTrajectory(park3);
 
