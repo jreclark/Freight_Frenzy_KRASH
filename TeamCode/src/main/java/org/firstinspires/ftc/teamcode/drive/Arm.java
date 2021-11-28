@@ -25,8 +25,12 @@ public class Arm {
     public final int MIDDLE_EXTENSION_COUNTS = -350;
     public final int BOTTOM_EXTENSION_COUNTS = -310;
 
-    public final int FRONT_TURRET_LIMIT = 0;
-    public final int BACK_TURRET_LIMIT = 9000;
+    public final int FORWARD_TURRET_LIMIT = -100;
+    public final int SIDE_TURRET_LIMIT = -3835;
+    public final int BACK_TURRET_LIMIT = -7450;
+    public final int REVERSE_TURRET_LIMIT = BACK_TURRET_LIMIT - 1;
+
+    public final int TURRET_RANGE = FORWARD_TURRET_LIMIT - REVERSE_TURRET_LIMIT;
 
     private NanoClock clock = NanoClock.system();
 
@@ -70,7 +74,7 @@ public class Arm {
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         spinnerMotor = hardwareMap.get(DcMotorEx.class, "spinnerMotor");
-        spinnerMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         extensionMotor = hardwareMap.get(DcMotorEx.class, "extensionMotor");
         extensionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

@@ -16,6 +16,7 @@ public class TeleOpDrive extends LinearOpMode {
     public double scaleFactor;
     public boolean lowPowerMode = false;
     public boolean armIsMoving = false;
+    public boolean turretIsMoving = false;
     public int armStartedLocation = 0;
     public final double LOWPOWERSCALE = 0.5;
     public final double CAROUSEL_POWER = 1.0;
@@ -55,7 +56,12 @@ public class TeleOpDrive extends LinearOpMode {
                 armControl();
             }
 
-            robot.arm.spinArm(-gamepad2.right_stick_x);
+            if (gamepad2.dpad_down) {
+                robot.arm.spinArm(-gamepad2.right_stick_x);
+            } else {
+                turretControl(-gamepad2.right_stick_x);
+            }
+
 
             robot.arm.extendArm(gamepad2.right_stick_y);
 
@@ -78,6 +84,7 @@ public class TeleOpDrive extends LinearOpMode {
 
             telemetry.addData("Arm Position:", robot.arm.armMotor.getCurrentPosition());
             telemetry.addData("Arm Extension:", robot.arm.extensionMotor.getCurrentPosition());
+            telemetry.addData("Turret Position:", robot.arm.spinnerMotor.getCurrentPosition());
             telemetry.update();
         }
 
@@ -140,6 +147,31 @@ public class TeleOpDrive extends LinearOpMode {
                 armIsMoving = true;
                 robot.arm.pivotArm(gamepad2.left_stick_y);
             }
+        }
+    }
+
+    private void turretControl(double power) {
+
+        if (power == 0) {
+            robot.arm.spinArm(0);
+            turretIsMoving = false;
+        } else if ((robot.arm.spinnerMotor.getCurrentPosition() >= robot.arm.FORWARD_TURRET_LIMIT) && power < 0) {
+            turretIsMoving = true;
+            robot.arm.spinArm(power);
+        } else if ((robot.arm.spinnerMotor.getCurrentPosition() <= robot.arm.REVERSE_TURRET_LIMIT) && power > 0) {
+            armIsMoving = true;
+            robot.arm.spinArm(power);
+        } else if ((robot.arm.spinnerMotor.getCurrentPosition() > (robot.arm.REVERSE_TURRET_LIMIT + 0.07 * robot.arm.TURRET_RANGE))
+                && (robot.arm.spinnerMotor.getCurrentPosition() < (robot.arm.FORWARD_TURRET_LIMIT - 0.07 * robot.arm.TURRET_RANGE))) {
+            armIsMoving = true;
+            robot.arm.spinArm(power);
+        } else if ((robot.arm.spinnerMotor.getCurrentPosition() > robot.arm.REVERSE_TURRET_LIMIT)
+                && (robot.arm.spinnerMotor.getCurrentPosition() < robot.arm.FORWARD_TURRET_LIMIT)) {
+            armIsMoving = true;
+            robot.arm.spinArm(0.5 * power);
+        } else {
+            robot.arm.spinArm(0);
+            turretIsMoving = false;
         }
     }
 
