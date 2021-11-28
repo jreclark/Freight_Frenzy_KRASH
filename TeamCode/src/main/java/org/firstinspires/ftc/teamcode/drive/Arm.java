@@ -25,6 +25,9 @@ public class Arm {
     public final int MIDDLE_EXTENSION_COUNTS = -350;
     public final int BOTTOM_EXTENSION_COUNTS = -310;
 
+    public final int FRONT_TURRET_LIMIT = 0;
+    public final int BACK_TURRET_LIMIT = 9000;
+
     private NanoClock clock = NanoClock.system();
 
     private double armStartClock;
