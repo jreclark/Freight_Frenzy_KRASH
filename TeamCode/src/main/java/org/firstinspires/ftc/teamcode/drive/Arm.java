@@ -40,6 +40,9 @@ public class Arm {
     private double extensionStartClock;
     private double extensionTimeout;
 
+    private double turretStartClock;
+    private double turretTimeout;
+
 
     public enum IntakeState {
         OFF,
@@ -258,24 +261,16 @@ public class Arm {
         /**
          * Note negative power is intake for "normal" arm position.
          */
-        //TODO: Still a work in progress.  NOT READY TO USE.
 
         double HOLD_POWER = 0.2;
 
         switch (intakeState) {
             case OFF:
+            case OUT:
                 useIntake(power);
-                lastIntakePwr = power;
-                if (power < 0) {
-                    intakeState = IntakeState.IN;
-                } else if (power > 0) {
-                    intakeState = IntakeState.OUT;
-                } else {
-                    intakeState = IntakeState.OFF;
-                }
                 return false;
+
             case IN:
-                //
                 if (power < 0) {
                     if (Math.abs(intakeMotor.getCurrent(CurrentUnit.MILLIAMPS)) > 1000) {
                         useIntake(-HOLD_POWER);
@@ -293,18 +288,49 @@ public class Arm {
                 } else {
                     return false;
                 }
-            case OUT:
-                useIntake(power);
-                return false;
             case HOLD_IN:
                 if (power > 0) {
                     useIntake(power);
                     return false;
                 }
+                return true;
             default:
                 return false;
-
         }
 
+    }
+
+    public boolean moveTurretToTarget(MovingMode mode, int target, double power, double timeout) {
+
+        if (mode == MovingMode.STOP) {
+            spinnerMotor.setPower(0);
+            spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            turretTimeout = 0;
+            turretStartClock = 0;
+            return false;
+        } else if (mode == MovingMode.START) {
+
+            spinnerMotor.setTargetPosition(target);
+            spinnerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            spinnerMotor.setPower(power);
+            turretStartClock = clock.seconds();
+            turretTimeout = timeout;
+            return true;
+        } else if (mode == MovingMode.RUNNING) {
+            if ((clock.seconds() - turretStartClock) >= turretTimeout || !spinnerMotor.isBusy()) {
+                spinnerMotor.setPower(0);
+                spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turretTimeout = 0;
+                turretStartClock = 0;
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean turretIsBusy() {
+        return moveTurretToTarget(MovingMode.RUNNING, 0, 0, 0);
     }
 }

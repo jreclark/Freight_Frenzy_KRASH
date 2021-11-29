@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.drive.Arm;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.util.ButtonState;
 
@@ -22,7 +23,9 @@ public class TeleOpDrive extends LinearOpMode {
     public final double CAROUSEL_POWER = 1.0;
     public final int ARM_TOP = 4000;
 
-    public ButtonState rightTrigger = new ButtonState(gamepad2, ButtonState.Button.right_trigger);
+    public ButtonState driverX = new ButtonState(gamepad1, ButtonState.Button.x);
+    public ButtonState manipB = new ButtonState(gamepad2, ButtonState.Button.b);
+
 
     public enum armState {
         UP,
@@ -31,8 +34,6 @@ public class TeleOpDrive extends LinearOpMode {
     }
 
 
-
-    public ButtonState gripperButton = new ButtonState(gamepad2, ButtonState.Button.x);
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -43,13 +44,23 @@ public class TeleOpDrive extends LinearOpMode {
         while(!isStopRequested()){
 
             driveControl();
+            if (driverX.getCurrentPress()) {
+                if(driverX.newPress()){
+                    robot.drive.turnAsync(Math.toRadians(180.0001));
+                } else {
+                    robot.drive.update();
+                }
+
+            }
+
+
 
             //Reset arm encoder
             if(gamepad1.dpad_up && gamepad2.dpad_up){
                 robot.arm.resetArmEncoder();
             }
 
-            if (gamepad1.dpad_down) {
+            if (gamepad2.dpad_up) {
                 //Override encoder-based arm pivot
                 robot.arm.pivotArm(-gamepad2.left_stick_y);
             } else {
@@ -62,15 +73,24 @@ public class TeleOpDrive extends LinearOpMode {
                 turretControl(-gamepad2.right_stick_x);
             }
 
-
             robot.arm.extendArm(gamepad2.right_stick_y);
 
+            if(manipB.getCurrentPress()){
+                if(manipB.newPress()){
+                    robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(Arm.HubLevel.MIDDLE), 0.8, 5);
+                    robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.SIDE_TURRET_LIMIT, 1.0, 5);
+                } else {
+                    robot.arm.armIsBusy();
+                    robot.arm.turretIsBusy();
+                }
+            }
+
             if(gamepad2.right_trigger>0){
-                robot.arm.useIntake(-gamepad2.right_trigger);
+                robot.arm.intakeSenseAsync(-gamepad2.right_trigger);
             } else if (gamepad2.left_trigger >0){
-                robot.arm.useIntake(gamepad2.left_trigger * .75);
+                robot.arm.intakeSenseAsync(gamepad2.left_trigger * .75);
             } else {
-                robot.arm.useIntake(0);
+                robot.arm.intakeSenseAsync(0);
             }
 
 
@@ -152,24 +172,35 @@ public class TeleOpDrive extends LinearOpMode {
 
     private void turretControl(double power) {
 
+        //Define a low power zone at each end of turret range as a % of total range
+        double slowPowerFence = 0.07 * robot.arm.TURRET_RANGE;
+
+        double currentEncoder = robot.arm.spinnerMotor.getCurrentPosition();
+
         if (power == 0) {
+            //Stop turret with zero power
             robot.arm.spinArm(0);
             turretIsMoving = false;
-        } else if ((robot.arm.spinnerMotor.getCurrentPosition() >= robot.arm.FORWARD_TURRET_LIMIT) && power < 0) {
+        } else if ((currentEncoder >= robot.arm.FORWARD_TURRET_LIMIT - slowPowerFence) && power < 0) {
+            //Apply clockwise 100% stick power if near or even beyond the forward limit
             turretIsMoving = true;
             robot.arm.spinArm(power);
-        } else if ((robot.arm.spinnerMotor.getCurrentPosition() <= robot.arm.REVERSE_TURRET_LIMIT) && power > 0) {
+        } else if ((currentEncoder <= robot.arm.REVERSE_TURRET_LIMIT + slowPowerFence) && power > 0) {
+            //Apply counterclockwise 100% stick power if near or even beyond the back limit
             armIsMoving = true;
             robot.arm.spinArm(power);
-        } else if ((robot.arm.spinnerMotor.getCurrentPosition() > (robot.arm.REVERSE_TURRET_LIMIT + 0.07 * robot.arm.TURRET_RANGE))
-                && (robot.arm.spinnerMotor.getCurrentPosition() < (robot.arm.FORWARD_TURRET_LIMIT - 0.07 * robot.arm.TURRET_RANGE))) {
+        } else if ((currentEncoder > (robot.arm.REVERSE_TURRET_LIMIT + slowPowerFence))
+                && (currentEncoder < (robot.arm.FORWARD_TURRET_LIMIT - slowPowerFence))) {
+            //Always apply full stick power in regions away form the range limits
             armIsMoving = true;
             robot.arm.spinArm(power);
-        } else if ((robot.arm.spinnerMotor.getCurrentPosition() > robot.arm.REVERSE_TURRET_LIMIT)
-                && (robot.arm.spinnerMotor.getCurrentPosition() < robot.arm.FORWARD_TURRET_LIMIT)) {
+        } else if ((currentEncoder > robot.arm.REVERSE_TURRET_LIMIT)
+                && (currentEncoder < robot.arm.FORWARD_TURRET_LIMIT)) {
+            //If approaching range limits, reduce speed to 50% stick power
             armIsMoving = true;
             robot.arm.spinArm(0.5 * power);
         } else {
+            //If we reach this point then the arm is outside of range limits and is shut off
             robot.arm.spinArm(0);
             turretIsMoving = false;
         }

@@ -90,6 +90,9 @@ public class ButtonState {
                 break;
         }
 
+        if (!buttonPress) {
+            buttonHeld = false;
+        }
         return buttonPress;
     }
 
