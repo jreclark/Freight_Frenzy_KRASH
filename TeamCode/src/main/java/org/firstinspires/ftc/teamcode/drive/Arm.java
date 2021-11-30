@@ -97,10 +97,12 @@ public class Arm {
     }
 
     public void pivotArm(double power) {
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armMotor.setPower(power);
     }
 
     public void spinArm(double power) {
+        spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         spinnerMotor.setPower(power);
     }
 
@@ -271,8 +273,8 @@ public class Arm {
                 return false;
 
             case IN:
-                if (power < 0) {
-                    if (Math.abs(intakeMotor.getCurrent(CurrentUnit.MILLIAMPS)) > 1000) {
+                if (power <= 0) {
+                    if (Math.abs(intakeMotor.getCurrent(CurrentUnit.MILLIAMPS)) > 2000) {
                         useIntake(-HOLD_POWER);
                         intakeState = IntakeState.HOLD_IN;
                         return true;

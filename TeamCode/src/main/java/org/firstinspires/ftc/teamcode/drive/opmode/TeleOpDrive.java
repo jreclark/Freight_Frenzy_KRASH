@@ -23,8 +23,11 @@ public class TeleOpDrive extends LinearOpMode {
     public final double CAROUSEL_POWER = 1.0;
     public final int ARM_TOP = 4000;
 
-    public ButtonState driverX = new ButtonState(gamepad1, ButtonState.Button.x);
-    public ButtonState manipB = new ButtonState(gamepad2, ButtonState.Button.b);
+    public ButtonState driverX;
+    public ButtonState manipB;
+
+    public final double expDrivePwrSetpoint = 3;
+    public double expDrivePwr = expDrivePwrSetpoint;
 
 
     public enum armState {
@@ -39,11 +42,17 @@ public class TeleOpDrive extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         robot = new Robot(hardwareMap);
 
+        driverX = new ButtonState(gamepad1, ButtonState.Button.x);
+        manipB = new ButtonState(gamepad2, ButtonState.Button.b);
+
         waitForStart();
 
         while(!isStopRequested()){
 
-            driveControl();
+            if (!driverX.getCurrentPress()) {
+                driveControl();
+            }
+
             if (driverX.getCurrentPress()) {
                 if(driverX.newPress()){
                     robot.drive.turnAsync(Math.toRadians(180.0001));
@@ -62,18 +71,18 @@ public class TeleOpDrive extends LinearOpMode {
 
             if (gamepad2.dpad_up) {
                 //Override encoder-based arm pivot
-                robot.arm.pivotArm(-gamepad2.left_stick_y);
-            } else {
-                armControl();
+                robot.arm.pivotArm(-gamepad2.right_stick_y);
+            } else if (!manipB.getCurrentPress()){
+                armControl(-gamepad2.right_stick_y);
             }
 
             if (gamepad2.dpad_down) {
                 robot.arm.spinArm(-gamepad2.right_stick_x);
-            } else {
+            } else if (!manipB.getCurrentPress()) {
                 turretControl(-gamepad2.right_stick_x);
             }
 
-            robot.arm.extendArm(gamepad2.right_stick_y);
+            robot.arm.extendArm(gamepad2.left_stick_y);
 
             if(manipB.getCurrentPress()){
                 if(manipB.newPress()){
@@ -112,12 +121,15 @@ public class TeleOpDrive extends LinearOpMode {
     }
 
     private void driveControl() {
+
         if(gamepad1.right_bumper){
             lowPowerMode = true;
+            expDrivePwr = 1;
         }
 
         if(gamepad1.left_bumper){
             lowPowerMode = false;
+            expDrivePwr = expDrivePwrSetpoint;
         }
 
         drivePower = -gamepad1.left_stick_y;
@@ -141,31 +153,31 @@ public class TeleOpDrive extends LinearOpMode {
         rightFrontPower = scaleFactor * rightFrontPower;
         rightRearPower = scaleFactor * rightRearPower;
 
-        robot.drive.setMotorPowers(leftFrontPower, leftRearPower, rightFrontPower, rightRearPower);
+        robot.drive.setMotorPowers(Math.pow(leftFrontPower, expDrivePwr), Math.pow(leftRearPower, expDrivePwr), Math.pow(rightFrontPower, expDrivePwr), Math.pow(rightRearPower, expDrivePwr));
     }
 
-    private void armControl(){
+    private void armControl(double power){
         if (armIsMoving) {
-            if (gamepad2.left_stick_y == 0) {
+            if (power == 0) {
                 robot.arm.pivotArm(0);
                 armIsMoving = false;
             } else if (armStartedLocation <= ARM_TOP) {
-                robot.arm.pivotArm(-gamepad2.left_stick_y);
+                robot.arm.pivotArm(power);
             } else {
-                robot.arm.pivotArm(gamepad2.left_stick_y);
+                robot.arm.pivotArm(power);
             }
         } else {
-            if (gamepad2.left_stick_y == 0) {
+            if (power == 0) {
                 robot.arm.pivotArm(0);
                 armIsMoving = false;
             } else if (robot.arm.armMotor.getCurrentPosition() <= ARM_TOP) {
                 armStartedLocation = robot.arm.armMotor.getCurrentPosition();
                 armIsMoving = true;
-                robot.arm.pivotArm(-gamepad2.left_stick_y);
+                robot.arm.pivotArm(power);
             } else {
                 armStartedLocation = robot.arm.armMotor.getCurrentPosition();
                 armIsMoving = true;
-                robot.arm.pivotArm(gamepad2.left_stick_y);
+                robot.arm.pivotArm(power);
             }
         }
     }
