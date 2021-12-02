@@ -130,7 +130,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     private void armToFrontIntake() {
         if(manipA.getCurrentPress()){
             if(manipA.newPress()){
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.8, 5);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.4, 5);
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.FORWARD_TURRET_LIMIT, 1.0, 5);
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
             } else {
@@ -158,7 +158,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     private void armToBackIntake() {
         if(manipY.getCurrentPress()){
             if(manipY.newPress()){
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.8, 5);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.4, 5);
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.BACK_TURRET_LIMIT, 1.0, 5);
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
             } else {
