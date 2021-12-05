@@ -124,6 +124,7 @@ public class Arm {
     }
 
     public void extendArm(double power) {
+        spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extensionMotor.setPower(power);
     }
 

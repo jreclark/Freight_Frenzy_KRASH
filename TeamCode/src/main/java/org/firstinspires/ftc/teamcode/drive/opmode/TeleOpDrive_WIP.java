@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -30,13 +31,10 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     public final double expDrivePwrSetpoint = 3;
     public double expDrivePwr = expDrivePwrSetpoint;
 
+    private NanoClock clock = NanoClock.system();
 
-    public enum armState {
-        UP,
-        DOWN,
-        STOPPED
-    }
-
+    private double moveStart;
+    private boolean midMove = false;
 
 
     @Override
@@ -51,7 +49,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
 
         waitForStart();
 
-        while(!isStopRequested()){
+        while (!isStopRequested()) {
 
             manipButtonPressed = manipA.getCurrentPress()
                     || manipB.getCurrentPress()
@@ -63,7 +61,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
             }
 
             if (driverX.getCurrentPress()) {
-                if(driverX.newPress()){
+                if (driverX.newPress()) {
                     robot.drive.turnAsync(Math.toRadians(180.0001));
                 } else {
                     robot.drive.update();
@@ -72,16 +70,15 @@ public class TeleOpDrive_WIP extends LinearOpMode {
             }
 
 
-
             //Reset arm encoder
-            if(gamepad1.dpad_up && gamepad2.dpad_up){
+            if (gamepad1.dpad_up && gamepad2.dpad_up) {
                 robot.arm.resetArmEncoder();
             }
 
             if (gamepad2.dpad_up) {
                 //Override encoder-based arm pivot
                 robot.arm.pivotArm(-gamepad2.right_stick_y);
-            } else if (!manipButtonPressed){
+            } else if (!manipButtonPressed) {
                 armControl(-gamepad2.right_stick_y);
             }
 
@@ -101,18 +98,18 @@ public class TeleOpDrive_WIP extends LinearOpMode {
             armToFrontIntake();
             armToHighHub();
 
-            if(gamepad2.right_trigger>0){
+            if (gamepad2.right_trigger > 0) {
                 robot.arm.intakeSenseAsync(-gamepad2.right_trigger);
-            } else if (gamepad2.left_trigger >0){
+            } else if (gamepad2.left_trigger > 0) {
                 robot.arm.intakeSenseAsync(gamepad2.left_trigger * .75);
             } else {
                 robot.arm.intakeSenseAsync(0);
             }
 
 
-            if(gamepad2.right_bumper){
+            if (gamepad2.right_bumper) {
                 robot.drive.runCarousel(CAROUSEL_POWER);
-            }else if (gamepad2.left_bumper){
+            } else if (gamepad2.left_bumper) {
                 robot.drive.runCarousel(-CAROUSEL_POWER);
             } else {
                 robot.drive.runCarousel(0);
@@ -128,11 +125,19 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     }
 
     private void armToFrontIntake() {
-        if(manipA.getCurrentPress()){
-            if(manipA.newPress()){
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.4, 5);
+        double armDelay = 2.0; //Wait for turret before pivoting arm
+        if (manipA.getCurrentPress()) {
+            if (manipA.newPress()) {
+                moveStart = clock.seconds();
+                midMove = false;
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.FORWARD_TURRET_LIMIT, 1.0, 5);
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
+            } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
+                midMove = true;
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.6, 5 - armDelay);
+                robot.arm.armIsBusy();
+                robot.arm.turretIsBusy();
+                robot.arm.extensionIsBusy();
             } else {
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
@@ -142,8 +147,8 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     }
 
     private void armToSide() {
-        if(manipB.getCurrentPress()){
-            if(manipB.newPress()){
+        if (manipB.getCurrentPress()) {
+            if (manipB.newPress()) {
                 robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(Arm.HubLevel.BOTTOM), 0.8, 5);
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.SIDE_TURRET_LIMIT, 1.0, 5);
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.MIDDLE_EXTENSION_COUNTS, 0.8, 5);
@@ -156,11 +161,20 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     }
 
     private void armToBackIntake() {
-        if(manipY.getCurrentPress()){
-            if(manipY.newPress()){
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.4, 5);
+        double armDelay = 2.0; //Wait for turret before pivoting arm
+        if (manipY.getCurrentPress()) {
+            if (manipY.newPress()) {
+                moveStart = clock.seconds();
+                midMove = false;
+
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.BACK_TURRET_LIMIT, 1.0, 5);
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
+            } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
+                midMove = true;
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.4, 5 - armDelay);
+                robot.arm.armIsBusy();
+                robot.arm.turretIsBusy();
+                robot.arm.extensionIsBusy();
             } else {
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
@@ -170,8 +184,8 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     }
 
     private void armToHighHub() {
-        if(manipX.getCurrentPress()){
-            if(manipX.newPress()){
+        if (manipX.getCurrentPress()) {
+            if (manipX.newPress()) {
                 robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.TOP_HUB_COUNTS, 0.8, 5);
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.FORWARD_TURRET_LIMIT, 1.0, 5);
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.TOP_EXTENSION_COUNTS, 0.8, 5);
@@ -185,16 +199,17 @@ public class TeleOpDrive_WIP extends LinearOpMode {
 
     private void driveControl() {
 
-        if(gamepad1.right_bumper){
+        if (gamepad1.right_bumper) {
             lowPowerMode = true;
             expDrivePwr = 1;
         }
 
-        if(gamepad1.left_bumper){
+        if (gamepad1.left_bumper) {
             lowPowerMode = false;
             expDrivePwr = expDrivePwrSetpoint;
         }
 
+        
         drivePower = -gamepad1.left_stick_y;
         strafePower = gamepad1.left_stick_x;
         turnPower = gamepad1.right_stick_x;
@@ -207,7 +222,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
         scaleFactor = robot.drive.scalePower(leftFrontPower, leftRearPower, rightFrontPower, rightRearPower);
 
 
-        if(lowPowerMode){
+        if (lowPowerMode) {
             scaleFactor = scaleFactor * LOWPOWERSCALE;
         }
 
@@ -219,7 +234,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
         robot.drive.setMotorPowers(Math.pow(leftFrontPower, expDrivePwr), Math.pow(leftRearPower, expDrivePwr), Math.pow(rightFrontPower, expDrivePwr), Math.pow(rightRearPower, expDrivePwr));
     }
 
-    private void armControl(double power){
+    private void armControl(double power) {
         if (armIsMoving) {
             if (power == 0) {
                 robot.arm.pivotArm(0);
@@ -281,5 +296,8 @@ public class TeleOpDrive_WIP extends LinearOpMode {
         }
     }
 
+    public double getElapsedTime(double start) {
+        return clock.seconds() - start;
+    }
 
 }
