@@ -30,6 +30,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
 
     public final double expDrivePwrSetpoint = 3;
     public double expDrivePwr = expDrivePwrSetpoint;
+    public double expArmPwr = 3;
 
     private NanoClock clock = NanoClock.system();
 
@@ -71,21 +72,21 @@ public class TeleOpDrive_WIP extends LinearOpMode {
 
 
             //Reset arm encoder
-            if (gamepad1.dpad_up && gamepad2.dpad_up) {
+            if (gamepad1.dpad_left && gamepad2.dpad_up) {
                 robot.arm.resetArmEncoder();
             }
 
             if (gamepad2.dpad_up) {
                 //Override encoder-based arm pivot
-                robot.arm.pivotArm(-gamepad2.right_stick_y);
+                robot.arm.pivotArm(Math.pow(-gamepad2.right_stick_y, expArmPwr));
             } else if (!manipButtonPressed) {
-                armControl(-gamepad2.right_stick_y);
+                armControl(Math.pow(-gamepad2.right_stick_y, expArmPwr));
             }
 
-            if (gamepad2.dpad_down) {
-                robot.arm.spinArm(-gamepad2.right_stick_x);
+            if (gamepad2.dpad_up) {
+                robot.arm.spinArm(Math.pow(-gamepad2.right_stick_x, expArmPwr));
             } else if (!manipButtonPressed) {
-                turretControl(-gamepad2.right_stick_x);
+                turretControl(Math.pow(-gamepad2.right_stick_x, expArmPwr));
             }
 
             if (!manipButtonPressed) {
@@ -209,10 +210,19 @@ public class TeleOpDrive_WIP extends LinearOpMode {
             expDrivePwr = expDrivePwrSetpoint;
         }
 
-        
-        drivePower = -gamepad1.left_stick_y;
-        strafePower = gamepad1.left_stick_x;
-        turnPower = gamepad1.right_stick_x;
+        if (gamepad1.dpad_up) {
+            drivePower = 0.8;
+            strafePower = -0.7;
+            turnPower = 0;
+        } else if (gamepad1.dpad_down) {
+            drivePower = -0.8;
+            strafePower = -0.7;
+            turnPower = 0;
+        } else {
+            drivePower = Math.pow(-gamepad1.left_stick_y, expDrivePwr);
+            strafePower = Math.pow(gamepad1.left_stick_x, expDrivePwr);
+            turnPower = Math.pow(gamepad1.right_stick_x, expDrivePwr);
+        }
 
         leftFrontPower = drivePower + turnPower + strafePower;
         leftRearPower = drivePower + turnPower - strafePower;
@@ -231,7 +241,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
         rightFrontPower = scaleFactor * rightFrontPower;
         rightRearPower = scaleFactor * rightRearPower;
 
-        robot.drive.setMotorPowers(Math.pow(leftFrontPower, expDrivePwr), Math.pow(leftRearPower, expDrivePwr), Math.pow(rightFrontPower, expDrivePwr), Math.pow(rightRearPower, expDrivePwr));
+        robot.drive.setMotorPowers(leftFrontPower, leftRearPower, rightFrontPower, rightRearPower);
     }
 
     private void armControl(double power) {

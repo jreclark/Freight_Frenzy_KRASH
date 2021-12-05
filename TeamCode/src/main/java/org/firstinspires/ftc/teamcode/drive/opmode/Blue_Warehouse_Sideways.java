@@ -34,7 +34,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
     Pose2d parkWarehouse1 = new Pose2d(10, 65, Math.toRadians(0));
     Pose2d parkWarehouse2 = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d parkWarehouse3 = new Pose2d(45, 45, Math.toRadians(45));
-    Pose2d parkWarehouseEnd = new Pose2d(66, 39, Math.toRadians(92));
+    Pose2d parkWarehouseEnd = new Pose2d(66, 39, Math.toRadians(-90));
 
     Pose2d grab1 = new Pose2d(48, 66, Math.toRadians(0));
 
@@ -60,16 +60,21 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
                 .build();
 
         //Pickup
+        TrajectorySequence parkSequence = robot.drive.trajectorySequenceBuilder(drop.end())
+                .lineToLinearHeading(parkWarehouse1)
+                .strafeLeft(5)
+                .build();
+
         park = robot.drive.trajectoryBuilder(drop.end())
                 .lineToLinearHeading(parkWarehouse1)
                 .build();
+
         park1 = robot.drive.trajectoryBuilder(park.end())
                 .lineTo(parkWarehouse2.vec())
                 .build();
 
 
 
-        //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
         while (!isStarted()) {
             markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
@@ -90,12 +95,14 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         robot.arm.spitIntake();
         sleep(500);
 
-        robot.drive.followTrajectory(park);
-        Trajectory strafeToWall = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
-                .strafeLeft(5)
-                .build();
 
-        robot.drive.followTrajectory(strafeToWall);
+        //Move arm high to avoid hitting anything and move to wall near warehouse
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
+        robot.drive.followTrajectorySequenceAsync(parkSequence);
+        while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
+            robot.drive.update();
+        }
+
 
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
@@ -123,7 +130,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             Trajectory backout = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate(), true)
                     .lineToLinearHeading(backup1)
                     .build();
-            robot.arm.moveArmToTarget(Arm.MovingMode.START, 1500, 0.8, 5);
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
             robot.drive.followTrajectoryAsync(backout);
             while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
                 robot.drive.update();
@@ -144,43 +151,40 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             robot.arm.spitIntake();
             sleep(500);
 
-            park = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
-                    .lineToLinearHeading(parkWarehouse1)
-                    .build();
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
+            robot.drive.followTrajectorySequenceAsync(parkSequence);
+            while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
+                robot.drive.update();
+            }
 
-            robot.drive.followTrajectory(park);
         }
 
-        park1 = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
+        TrajectorySequence finalParkSeq = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
                 .lineTo(parkWarehouse2.vec())
-                .build();
-        park2 = robot.drive.trajectoryBuilder(park1.end())
                 .lineToLinearHeading(parkWarehouse3)
-                .build();
-        park3 = robot.drive.trajectoryBuilder(park2.end())
+                .turn(Math.toRadians(180))
                 .lineToLinearHeading(parkWarehouseEnd)
                 .build();
 
-        robot.drive.followTrajectory(park1);
+        //Move turret for 3 seconds to give it a head start.  This turret may not finish before timeout
+        robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.BACK_TURRET_LIMIT, 1.0, 3);
+        robot.drive.followTrajectorySequence(finalParkSeq);
+        while(robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
+            robot.drive.update();
+        }
 
-        strafeToWall = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
-                .strafeLeft(5)
-                .build();
 
-        robot.drive.followTrajectory(strafeToWall);
-
-        robot.drive.followTrajectory(park2);
-        robot.drive.followTrajectory(park3);
-
+        //Flip arm to back intake position
+        robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.BACK_TURRET_LIMIT, 1.0, 5);
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
         robot.arm.useIntake(-0.8);
 
-        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
+        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
         }
 
         grab = robot.drive.trajectoryBuilder(parkWarehouseEnd)
-                .forward(10)
+                .back(10)
                 .build();
 
         robot.drive.followTrajectory(grab);
