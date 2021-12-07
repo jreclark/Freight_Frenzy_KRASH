@@ -89,9 +89,12 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 turretControl(Math.pow(-gamepad2.right_stick_x, expArmPwr));
             }
 
-            if (!manipButtonPressed) {
+/*            if (!manipButtonPressed) {
                 robot.arm.extendArm(gamepad2.left_stick_y);
-            }
+            }*/
+
+            robot.arm.extendArm(gamepad2.left_stick_y);
+
 
             //Check for automated routines
             armToSide();
@@ -170,7 +173,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 midMove = false;
 
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.BACK_TURRET_LIMIT, 1.0, 5);
-                robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
+                robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -400, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
                 robot.arm.moveArmToTarget(Arm.MovingMode.START, 743, 0.4, 5 - armDelay);

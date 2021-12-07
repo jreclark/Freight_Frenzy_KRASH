@@ -26,7 +26,7 @@ public class Arm {
     public final int TOP_EXTENSION_COUNTS = -465;
     public final int MIDDLE_EXTENSION_COUNTS = -350;
     public final int BOTTOM_EXTENSION_COUNTS = -310;
-    public final int INTAKE_EXTENSION_COUNTS = -530;
+    public final int INTAKE_EXTENSION_COUNTS = -500;
 
     public final int FORWARD_TURRET_LIMIT = -100;
     public final int SIDE_TURRET_LIMIT = -3835;
