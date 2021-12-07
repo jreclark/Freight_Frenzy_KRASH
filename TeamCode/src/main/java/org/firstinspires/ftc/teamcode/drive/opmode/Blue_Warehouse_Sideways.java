@@ -97,7 +97,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
 
 
         //Move arm high to avoid hitting anything and move to wall near warehouse
-        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
         robot.drive.followTrajectorySequenceAsync(parkSequence);
         while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
             robot.drive.update();
