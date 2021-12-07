@@ -17,7 +17,7 @@ public class Arm {
 
     final double TICKS_PER_REV = 5281.1;
 
-    public final int SAFE_HIGH_ARM = 3000;
+    public final int SAFE_HIGH_ARM = 3300;
     public final int TOP_HUB_COUNTS = 2080;
     public final int MIDDLE_HUB_COUNTS = 1600;
     public final int BOTTOM_HUB_COUNTS = 1200;

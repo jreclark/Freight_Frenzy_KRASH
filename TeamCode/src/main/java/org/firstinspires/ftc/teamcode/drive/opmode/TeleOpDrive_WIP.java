@@ -63,7 +63,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
 
             if (driverX.getCurrentPress()) {
                 if (driverX.newPress()) {
-                    robot.drive.turnAsync(Math.toRadians(180.0001));
+                    robot.drive.turnAsyncAtSpeed(Math.toRadians(180.0001), 9.0, Math.toRadians(720));
                 } else {
                     robot.drive.update();
                 }
@@ -140,7 +140,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, 920, 0.6, 5 - armDelay);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 850, 0.6, 5 - armDelay);
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();
@@ -178,7 +178,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -400, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, 743, 0.4, 5 - armDelay);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 700, 0.4, 5 - armDelay);
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();
