@@ -173,6 +173,14 @@ public class KRASHMecanumDrive extends MecanumDrive {
         );
     }
 
+    public void turnAsyncAtSpeed(double angle, double angVel, double angAccel) {
+        trajectorySequenceRunner.followTrajectorySequenceAsync(
+                trajectorySequenceBuilder(getPoseEstimate())
+                        .turn(angle, angVel, angAccel)
+                        .build()
+        );
+    }
+
     public void turn(double angle) {
         turnAsync(angle);
         waitForIdle();
