@@ -125,7 +125,7 @@ public class Arm {
     }
 
     public void extendArm(double power) {
-        spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extensionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extensionMotor.setPower(power);
     }
 
@@ -339,4 +339,7 @@ public class Arm {
     public boolean turretIsBusy() {
         return moveTurretToTarget(MovingMode.RUNNING, 0, 0, 0);
     }
+
 }
+
+

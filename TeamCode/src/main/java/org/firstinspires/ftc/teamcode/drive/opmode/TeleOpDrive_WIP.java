@@ -89,18 +89,20 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 turretControl(Math.pow(-gamepad2.right_stick_x, expArmPwr));
             }
 
-/*            if (!manipButtonPressed) {
+            if (!manipButtonPressed) {
                 robot.arm.extendArm(gamepad2.left_stick_y);
-            }*/
+            }
 
-            robot.arm.extendArm(gamepad2.left_stick_y);
+            //robot.arm.extendArm(gamepad2.left_stick_y);
 
 
             //Check for automated routines
-            armToSide();
-            armToBackIntake();
-            armToFrontIntake();
-            armToHighHub();
+            if(manipButtonPressed) {
+                armToSide();
+                armToBackIntake();
+                armToFrontIntake();
+                armToHighHub();
+            }
 
             if (gamepad2.right_trigger > 0) {
                 robot.arm.intakeSenseAsync(-gamepad2.right_trigger);
