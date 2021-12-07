@@ -135,7 +135,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.6, 5 - armDelay);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 920, 0.6, 5 - armDelay);
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();
@@ -144,6 +144,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();
             }
+            robot.arm.intakeSenseAsync(-0.9);
         }
     }
 
@@ -172,7 +173,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.INTAKE_ARM_COUNTS, 0.4, 5 - armDelay);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 743, 0.4, 5 - armDelay);
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();
@@ -181,6 +182,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();
             }
+            robot.arm.intakeSenseAsync(-0.9);
         }
     }
 
@@ -212,11 +214,11 @@ public class TeleOpDrive_WIP extends LinearOpMode {
 
         if (gamepad1.dpad_up) {
             drivePower = 0.8;
-            strafePower = -0.7;
+            strafePower = -0.5;
             turnPower = 0;
         } else if (gamepad1.dpad_down) {
             drivePower = -0.8;
-            strafePower = -0.7;
+            strafePower = -0.5;
             turnPower = 0;
         } else {
             drivePower = Math.pow(-gamepad1.left_stick_y, expDrivePwr);
