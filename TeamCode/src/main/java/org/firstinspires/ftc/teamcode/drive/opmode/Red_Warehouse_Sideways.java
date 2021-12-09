@@ -5,10 +5,10 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.drive.Arm;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous
 public class Red_Warehouse_Sideways extends LinearOpMode {
@@ -31,10 +31,10 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
     Pose2d dropLocation = new Pose2d(-2, -46, Math.toRadians(120));
 
 
-    Pose2d parkWarehouse1 = new Pose2d(12, -65, Math.toRadians(0));
-    Pose2d parkWarehouse2 = new Pose2d(38, -66, Math.toRadians(0));
-    Pose2d parkWarehouse3 = new Pose2d(45, -45, Math.toRadians(-45));
-    Pose2d parkWarehouseEnd = new Pose2d(66, -39, Math.toRadians(-92));
+    Pose2d outsideWarehouse = new Pose2d(12, -65, Math.toRadians(0));
+    Pose2d insideWarehouse = new Pose2d(38, -66, Math.toRadians(0));
+    Pose2d midPointParking = new Pose2d(45, -45, Math.toRadians(-45));
+    Pose2d finalWarehousePosition = new Pose2d(66, -39, Math.toRadians(-92));
 
     Pose2d grab1 = new Pose2d(48, -66, Math.toRadians(0));
 
@@ -47,6 +47,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
 
         robot.arm.resetEncoder(robot.arm.armMotor);
         robot.arm.resetEncoder(robot.arm.extensionMotor);
+        robot.arm.resetEncoder(robot.arm.spinnerMotor);
 
         tfod.initDetector();
 
@@ -60,16 +61,21 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
                 .build();
 
         //Pickup
+        TrajectorySequence outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(drop.end())
+                .lineToLinearHeading(outsideWarehouse)
+                .strafeRight(5)
+                .build();
+
         park = robot.drive.trajectoryBuilder(drop.end())
-                .lineToLinearHeading(parkWarehouse1)
+                .lineToLinearHeading(outsideWarehouse)
                 .build();
         park1 = robot.drive.trajectoryBuilder(park.end())
-                .lineTo(parkWarehouse2.vec())
+                .lineTo(insideWarehouse.vec())
                 .build();
 
 
 
-        //TODO: Add vision handling.  Should result in markerLocation indicating marker position.
+
         while (!isStarted() && !isStopRequested()) {
             markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
@@ -89,7 +95,12 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
         robot.arm.spitIntake();
         sleep(500);
 
-        robot.drive.followTrajectory(park);
+        //Move arm high to avoid hitting anything and move to wall near warehouse
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
+        robot.drive.followTrajectorySequenceAsync(outsideWarehouseSequence);
+        while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
+            robot.drive.update();
+        }
 
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
@@ -100,7 +111,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
-        Trajectory grab = robot.drive.trajectoryBuilder(park1.end())
+        Trajectory grab = robot.drive.trajectoryBuilder(outsideWarehouseSequence.end())
                 .splineTo(grab1.vec(), grab1.getHeading())
                 .build();
 
@@ -110,11 +121,14 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
         telemetry.addData("Got block:", gotIt);
         telemetry.update();
 
+        //Uncomment the line below to skip cycling and park in the warehouse near the shared hub
+        //gotIt = false;
+
         if (gotIt) {
             Trajectory backout = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate(), true)
                     .lineToLinearHeading(backup1)
                     .build();
-            robot.arm.moveArmToTarget(Arm.MovingMode.START, 1500, 0.8, 5);
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
             robot.drive.followTrajectoryAsync(backout);
             while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
                 robot.drive.update();
@@ -135,26 +149,23 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
             robot.arm.spitIntake();
             sleep(500);
 
-            park = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
-                    .lineToLinearHeading(new Pose2d(parkWarehouse1.getX(), parkWarehouse1.getY(), parkWarehouse1.getHeading() - Math.toRadians(-2.0)))
-                    .build();
-
-            robot.drive.followTrajectory(park);
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
+            robot.drive.followTrajectorySequenceAsync(outsideWarehouseSequence);
+            while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
+                robot.drive.update();
+            }
         }
 
-        park1 = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
-                .lineTo(parkWarehouse2.vec())
-                .build();
-        park2 = robot.drive.trajectoryBuilder(park1.end())
-                .lineToLinearHeading(parkWarehouse3)
-                .build();
-        park3 = robot.drive.trajectoryBuilder(park2.end())
-                .lineToLinearHeading(parkWarehouseEnd)
+        TrajectorySequence finalParkSeq = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
+                .lineTo(insideWarehouse.vec())
+                .lineToLinearHeading(midPointParking)
+                .lineToLinearHeading(finalWarehousePosition)
                 .build();
 
-        robot.drive.followTrajectory(park1);
-        robot.drive.followTrajectory(park2);
-        robot.drive.followTrajectory(park3);
+        robot.drive.followTrajectorySequence(finalParkSeq);
+        while(robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
+            robot.drive.update();
+        }
 
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
@@ -163,7 +174,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
         while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
         }
 
-        grab = robot.drive.trajectoryBuilder(parkWarehouseEnd)
+        grab = robot.drive.trajectoryBuilder(finalWarehousePosition)
                 .forward(10)
                 .build();
 
@@ -174,7 +185,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
         telemetry.update();
 
         if(gotIt){
-            robot.arm.moveArmToTarget(Arm.MovingMode.START, 1500, 0.8, 5);
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, 2500, 1.0, 5);
             while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             }
         }
