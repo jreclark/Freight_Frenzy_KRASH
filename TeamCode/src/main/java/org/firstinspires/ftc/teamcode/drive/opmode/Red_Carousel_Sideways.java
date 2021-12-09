@@ -41,7 +41,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
 
     Pose2d startingPose = new Pose2d(-38,-63.5,Math.toRadians(0));
     Pose2d carouselLocation = new Pose2d(-61.5, -57.5, Math.toRadians(90));
-    Pose2d dropLocation = new Pose2d(-21.5, -46.5, Math.toRadians(70));
+    Pose2d dropLocation = new Pose2d(-20.5, -45.5, Math.toRadians(70));
     Pose2d parkStorageLoc = new Pose2d(-65, -31, Math.toRadians(0)); //reversed
 
     //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
@@ -139,9 +139,11 @@ public class Red_Carousel_Sideways extends LinearOpMode {
 
         robot.arm.spitIntake();
 
+        sleep(10000);
+
         /** Raise arm to get it out of the way and move to park location or begin moving towards warehouse*/
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
-        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.1, 5);
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
 
         if(parkInStorage) {
             robot.drive.followTrajectoryAsync(parkStore);
@@ -167,6 +169,8 @@ public class Red_Carousel_Sideways extends LinearOpMode {
                     .lineToLinearHeading(finalWarehousePosition)
                     .build();
 
+            robot.drive.followTrajectorySequence(finalParkSeq);
+
 
             /** Move arm to intake position */
             robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
@@ -176,7 +180,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
             while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             }
 
-            Trajectory grab = robot.drive.trajectoryBuilder(finalWarehousePosition)
+            Trajectory grab = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
                     .forward(10)
                     .build();
 

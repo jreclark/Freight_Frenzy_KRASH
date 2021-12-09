@@ -19,8 +19,8 @@ public class Arm {
 
     public final int SAFE_HIGH_ARM = 3300;
     public final int TOP_HUB_COUNTS = 2080;
-    public final int MIDDLE_HUB_COUNTS = 1600;
-    public final int BOTTOM_HUB_COUNTS = 1200;
+    public final int MIDDLE_HUB_COUNTS = 1800;
+    public final int BOTTOM_HUB_COUNTS = 1600;
     public final int INTAKE_ARM_COUNTS = 300;
 
     public final int TOP_EXTENSION_COUNTS = -465;
