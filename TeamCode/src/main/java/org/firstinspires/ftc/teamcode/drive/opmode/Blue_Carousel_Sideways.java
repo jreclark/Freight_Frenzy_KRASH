@@ -40,11 +40,11 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
 
     Pose2d startingPose = new Pose2d(-36, 63.5, Math.toRadians(179.99));
     Pose2d carouselLocation = new Pose2d(-62.5, 55, Math.toRadians(0));
-    Pose2d dropLocation = new Pose2d(-23.5, 44, Math.toRadians(-70));
+    Pose2d dropLocation = new Pose2d(-19.5, 45.0, Math.toRadians(-75));
     Pose2d parkStorageLoc = new Pose2d(-67, 34, Math.toRadians(0)); //reversed
 
     //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
-    Pose2d outsideWarehouse = new Pose2d(-12, 65, Math.toRadians(0));
+    Pose2d outsideWarehouse = new Pose2d(0, 65, Math.toRadians(0));
     Pose2d insideWarehouse = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d midPointParking = new Pose2d(45, 45, Math.toRadians(45));
     Pose2d finalWarehousePosition = new Pose2d(66, 39, Math.toRadians(-90));
@@ -61,7 +61,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
 
         tfod.initDetector();
 
-        robot.arm.useIntake(-0.2);
+        robot.arm.useIntake(0.2);
 
         robot.drive.getLocalizer().setPoseEstimate(startingPose);
 
@@ -142,12 +142,12 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
-        robot.arm.spitIntake();
+        robot.arm.spitIntake(-0.5);
 
 
         /** Raise arm to get it out of the way and move to park location or begin moving towards warehouse*/
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
-        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.1, 5);
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
 
         if (parkInStorage) {
             robot.drive.followTrajectoryAsync(parkStore);

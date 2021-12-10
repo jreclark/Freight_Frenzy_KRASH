@@ -18,14 +18,15 @@ public class Arm {
     final double TICKS_PER_REV = 5281.1;
 
     public final int SAFE_HIGH_ARM = 3300;
-    public final int TOP_HUB_COUNTS = 2080;
-    public final int MIDDLE_HUB_COUNTS = 1800;
-    public final int BOTTOM_HUB_COUNTS = 1600;
+    public final int TOP_NORMAL_HUB_COUNTS = 2200;
+    public final int TOP_HUB_COUNTS = 1800;
+    public final int MIDDLE_HUB_COUNTS = 1240;
+    public final int BOTTOM_HUB_COUNTS = 510;
     public final int INTAKE_ARM_COUNTS = 300;
 
-    public final int TOP_EXTENSION_COUNTS = -465;
-    public final int MIDDLE_EXTENSION_COUNTS = -350;
-    public final int BOTTOM_EXTENSION_COUNTS = -310;
+    public final int TOP_EXTENSION_COUNTS = -400;
+    public final int MIDDLE_EXTENSION_COUNTS = -310;
+    public final int BOTTOM_EXTENSION_COUNTS = -330;
     public final int INTAKE_EXTENSION_COUNTS = -500;
 
     public final int FORWARD_TURRET_LIMIT = -100;
@@ -242,8 +243,8 @@ public class Arm {
         return null;
     }
 
-    public void spitIntake() {
-        useIntake(0.8);
+    public void spitIntake(double power) {
+        useIntake(power);
         sleep(500);
         useIntake(0);
     }

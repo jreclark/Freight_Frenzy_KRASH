@@ -113,7 +113,7 @@ public class Red_Carousel extends LinearOpMode {
             robot.drive.update();
         }
 
-        robot.arm.spitIntake();
+        robot.arm.spitIntake(0.8);
 
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
         robot.drive.followTrajectoryAsync(park);

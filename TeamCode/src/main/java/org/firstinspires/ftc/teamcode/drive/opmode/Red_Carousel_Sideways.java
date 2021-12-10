@@ -40,8 +40,8 @@ public class Red_Carousel_Sideways extends LinearOpMode {
     private static final TrajectoryAccelerationConstraint SLOW_ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
     Pose2d startingPose = new Pose2d(-38,-63.5,Math.toRadians(0));
-    Pose2d carouselLocation = new Pose2d(-61.5, -57.5, Math.toRadians(90));
-    Pose2d dropLocation = new Pose2d(-20.5, -45.5, Math.toRadians(70));
+    Pose2d carouselLocation = new Pose2d(-61.5, -57.5, Math.toRadians(95));
+    Pose2d dropLocation = new Pose2d(-21.5, -46.5, Math.toRadians(70));
     Pose2d parkStorageLoc = new Pose2d(-65, -31, Math.toRadians(0)); //reversed
 
     //Pose2d parkWarehouse0 = new Pose2d(-25, -50, Math.toRadians(-45));
@@ -59,7 +59,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
         robot.arm.resetEncoder(robot.arm.extensionMotor);
         robot.arm.resetEncoder(robot.arm.spinnerMotor);
 
-        robot.arm.useIntake(-0.2);
+        robot.arm.useIntake(0.2);
 
         tfod.initDetector();
 
@@ -122,6 +122,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
         //Basic Drive
 
         /** Move to carousel and get duck */
+
         robot.drive.followTrajectorySequence(carouselSequence);
 
         robot.drive.runCarousel(-1.0);
@@ -137,9 +138,10 @@ public class Red_Carousel_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
-        robot.arm.spitIntake();
+        robot.arm.moveArmToTarget(Arm.MovingMode.STOP,0,0,1);
 
-        sleep(10000);
+        robot.arm.spitIntake(-0.6);
+
 
         /** Raise arm to get it out of the way and move to park location or begin moving towards warehouse*/
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);

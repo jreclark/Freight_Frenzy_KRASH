@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -9,6 +11,13 @@ import org.firstinspires.ftc.teamcode.drive.Arm;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.drive.KRASHMecanumDrive.getAccelerationConstraint;
+import static org.firstinspires.ftc.teamcode.drive.KRASHMecanumDrive.getVelocityConstraint;
 
 @Autonomous
 public class Blue_Warehouse_Sideways extends LinearOpMode {
@@ -26,17 +35,21 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
 
     public Arm.HubLevel hubLevel = null;
 
+    private static final TrajectoryVelocityConstraint SLOW_CONSTRAINT = getVelocityConstraint(MAX_VEL * 0.4, MAX_ANG_VEL, TRACK_WIDTH);
+    private static final TrajectoryAccelerationConstraint SLOW_ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
+
+
 
     Pose2d startingPose = new Pose2d(13, 63, Math.toRadians(-179.99));
-    Pose2d dropLocation = new Pose2d(0.5, 42.5, Math.toRadians(-120));
+    Pose2d dropLocation = new Pose2d(-3.0, 45.0, Math.toRadians(-108));
+    Pose2d secondDropLocation = new Pose2d(-0.5, 41.5, Math.toRadians(-127));
 
-
-    Pose2d outsideWarehouse = new Pose2d(10, 65, Math.toRadians(0));
+    Pose2d outsideWarehouse = new Pose2d(8, 65, Math.toRadians(0));
     Pose2d insideWarehouse = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d midPointParking = new Pose2d(45, 45, Math.toRadians(45));
     Pose2d finalWarehousePosition = new Pose2d(66, 39, Math.toRadians(-90));
 
-    Pose2d grab1 = new Pose2d(48, 66, Math.toRadians(0));
+    Pose2d grab1 = new Pose2d(45, 66, Math.toRadians(0));
 
     Pose2d backup1 = new Pose2d(8, 65, Math.toRadians(0));
 
@@ -51,7 +64,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
 
         tfod.initDetector();
 
-        robot.arm.useIntake(-0.2);
+        robot.arm.useIntake(0.2);
 
         robot.drive.getLocalizer().setPoseEstimate(startingPose);
 
@@ -93,7 +106,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
-        robot.arm.spitIntake();
+        robot.arm.spitIntake(-0.5);
         sleep(500);
 
 
@@ -105,20 +118,20 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         }
 
 
-        robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.9, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
         robot.arm.useIntake(-0.8);
-        robot.drive.followTrajectoryAsync(park1);
+        //robot.drive.followTrajectoryAsync(park1);
+
+        Trajectory grab = robot.drive.trajectoryBuilder(outsideWarehouseSequence.end())
+                .lineToLinearHeading(grab1, SLOW_CONSTRAINT, SLOW_ACCEL_CONSTRAINT)
+                .build();
+
+        robot.drive.followTrajectoryAsync(grab);
 
         while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
             robot.drive.update();
         }
-
-        Trajectory grab = robot.drive.trajectoryBuilder(outsideWarehouseSequence.end())
-                .splineTo(grab1.vec(), grab1.getHeading())
-                .build();
-
-        robot.drive.followTrajectory(grab);
 
         boolean gotIt = robot.arm.intakeSense(3);
         telemetry.addData("Got block:", gotIt);
@@ -128,20 +141,21 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         //gotIt = false;
 
         if (gotIt) {
-            Trajectory backout = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate(), true)
-                    .lineToLinearHeading(backup1)
+            TrajectorySequence backout = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
+                    .strafeLeft(2)
+                    .back(38)
                     .build();
             robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
-            robot.drive.followTrajectoryAsync(backout);
+            robot.drive.followTrajectorySequence(backout);
             while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
                 robot.drive.update();
             }
 
             Trajectory dropAgain = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
-                    .lineToLinearHeading(dropLocation)
+                    .lineToLinearHeading(secondDropLocation)
                     .build();
 
-            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(Arm.HubLevel.TOP), 0.8, 5);
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.TOP_NORMAL_HUB_COUNTS, 0.8, 5);
             robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.getExtensionTarget(Arm.HubLevel.TOP), 0.8, 5);
             robot.drive.followTrajectoryAsync(dropAgain);
 
@@ -149,7 +163,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
                 robot.drive.update();
             }
 
-            robot.arm.spitIntake();
+            robot.arm.spitIntake(0.8);
             sleep(500);
 
             robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
@@ -158,7 +172,14 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
                 robot.drive.update();
             }
 
+        } else {
+            robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
+
+            while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
+            }
         }
+
 
         TrajectorySequence finalParkSeq = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
                 .lineTo(insideWarehouse.vec())
@@ -181,14 +202,16 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
         robot.arm.useIntake(-0.8);
 
-        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
-        }
-
         grab = robot.drive.trajectoryBuilder(finalWarehousePosition)
                 .back(10)
                 .build();
 
-        robot.drive.followTrajectory(grab);
+        robot.drive.followTrajectoryAsync(grab);
+
+        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
+            robot.drive.update();
+        }
+
 
         gotIt = robot.arm.intakeSense(5);
         telemetry.addData("Got block:", gotIt);

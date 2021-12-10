@@ -81,7 +81,7 @@ public class Red_Warehouse extends LinearOpMode {
             robot.drive.update();
         }
 
-        robot.arm.spitIntake();
+        robot.arm.spitIntake(0.8);
         sleep(500);
 
         robot.drive.followTrajectory(park);
@@ -127,7 +127,7 @@ public class Red_Warehouse extends LinearOpMode {
                 robot.drive.update();
             }
 
-            robot.arm.spitIntake();
+            robot.arm.spitIntake(0.8);
             sleep(500);
 
         }
