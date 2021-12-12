@@ -156,7 +156,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     private void armToSide() {
         if (manipB.getCurrentPress()) {
             if (manipB.newPress()) {
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(Arm.HubLevel.BOTTOM), 0.8, 5);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(Arm.HubLevel.MIDDLE), 0.8, 5);
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.SIDE_TURRET_LIMIT, 1.0, 5);
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.MIDDLE_EXTENSION_COUNTS, 0.8, 5);
             } else {

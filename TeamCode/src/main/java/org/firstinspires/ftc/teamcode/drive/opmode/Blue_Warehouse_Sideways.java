@@ -32,6 +32,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
     private Trajectory park, park1, park2, park3;
 
     public boolean parkInStorage = false;
+    boolean gotIt = false;
 
     public Arm.HubLevel hubLevel = null;
 
@@ -47,7 +48,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
     Pose2d outsideWarehouse = new Pose2d(8, 65, Math.toRadians(0));
     Pose2d insideWarehouse = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d midPointParking = new Pose2d(45, 45, Math.toRadians(45));
-    Pose2d finalWarehousePosition = new Pose2d(66, 39, Math.toRadians(-90));
+    Pose2d finalWarehousePosition = new Pose2d(66, 39, Math.toRadians(-85));
 
     Pose2d grab1 = new Pose2d(45, 66, Math.toRadians(0));
 
@@ -123,7 +124,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         robot.arm.useIntake(-0.8);
         //robot.drive.followTrajectoryAsync(park1);
 
-        Trajectory grab = robot.drive.trajectoryBuilder(outsideWarehouseSequence.end())
+        Trajectory grab = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
                 .lineToLinearHeading(grab1, SLOW_CONSTRAINT, SLOW_ACCEL_CONSTRAINT)
                 .build();
 
@@ -133,9 +134,21 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
-        boolean gotIt = robot.arm.intakeSense(3);
-        telemetry.addData("Got block:", gotIt);
+        Pose2d positionCheck = robot.drive.getPoseEstimate();
+        telemetry.addData("X Position", positionCheck.getX());
         telemetry.update();
+
+        if (positionCheck.getX() > 20.0) {
+            gotIt = robot.arm.intakeSense(3);
+            telemetry.addData("Got block:", gotIt);
+            telemetry.update();
+        } else {
+            outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(positionCheck)
+                    .lineToLinearHeading(outsideWarehouse)
+                    .strafeLeft(5)
+                    .build();
+            robot.drive.followTrajectorySequence(outsideWarehouseSequence);
+        }
 
         //Uncomment the line below to skip cycling and park in the warehouse near the shared hub
         //gotIt = false;

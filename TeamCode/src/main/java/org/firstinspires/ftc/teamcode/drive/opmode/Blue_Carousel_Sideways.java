@@ -67,7 +67,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
 
         TrajectorySequence carouselSequence = robot.drive.trajectorySequenceBuilder(startingPose)
                 .lineToLinearHeading(carouselLocation)
-                .strafeLeft(3, SLOW_CONSTRAINT, SLOW_ACCEL_CONSTRAINT)
+                .strafeLeft(4, SLOW_CONSTRAINT, SLOW_ACCEL_CONSTRAINT)
                 .build();
 
         drop = robot.drive.trajectoryBuilder(carouselSequence.end())

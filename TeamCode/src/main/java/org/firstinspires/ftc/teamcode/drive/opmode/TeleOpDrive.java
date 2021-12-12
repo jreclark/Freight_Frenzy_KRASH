@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.util.ButtonState;
 
 @TeleOp
+@Disabled
 public class TeleOpDrive extends LinearOpMode {
     public Robot robot;
     public double drivePower;
