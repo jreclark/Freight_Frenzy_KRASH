@@ -92,15 +92,7 @@ public class Blue_Carousel_Sideways extends LinearOpMode {
                 .build();
 
 
-            /*park1 = robot.drive.trajectoryBuilder(park.end())
-                    .lineTo(parkWarehouse2.vec())
-                    .build();
-            park2 = robot.drive.trajectoryBuilder(park1.end())
-                    .lineToLinearHeading(parkWarehouse3)
-                    .build();
-            park3 = robot.drive.trajectoryBuilder(park2.end())
-                    .lineToLinearHeading(parkWarehouseEnd)
-                    .build();*/
+
 
 
         //TODO: Add vision handling.  Should result in markerLocation indicating marker position.

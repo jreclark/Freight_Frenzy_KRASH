@@ -32,6 +32,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
     private Trajectory park, park1, park2, park3;
 
     public boolean parkInStorage = false;
+    boolean gotIt = false;
 
     public Arm.HubLevel hubLevel = null;
 
@@ -124,15 +125,31 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
-        Trajectory grab = robot.drive.trajectoryBuilder(outsideWarehouseSequence.end())
+        robot.drive.updatePoseEstimate();
+        Trajectory grab = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
                 .splineTo(grab1.vec(), grab1.getHeading(),SLOW_CONSTRAINT, SLOW_ACCEL_CONSTRAINT)
                 .build();
 
         robot.drive.followTrajectory(grab);
 
-        boolean gotIt = robot.arm.intakeSense(3);
-        telemetry.addData("Got block:", gotIt);
+        robot.drive.updatePoseEstimate();
+        Pose2d positionCheck = robot.drive.getPoseEstimate();
+        telemetry.addData("X Position", positionCheck.getX());
         telemetry.update();
+
+        //Check to make sure we didn't get stuck and correct position if necessary
+        if (positionCheck.getX() > 20.0) {
+            gotIt = robot.arm.intakeSense(3);
+            telemetry.addData("Got block:", gotIt);
+            telemetry.update();
+        } else {
+            outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(positionCheck)
+                    .lineToLinearHeading(outsideWarehouse)
+                    .strafeLeft(5)
+                    .build();
+            robot.drive.followTrajectorySequence(outsideWarehouseSequence);
+            gotIt = false;
+        }
 
         //Uncomment the line below to skip cycling and park in the warehouse near the shared hub
         //gotIt = false;

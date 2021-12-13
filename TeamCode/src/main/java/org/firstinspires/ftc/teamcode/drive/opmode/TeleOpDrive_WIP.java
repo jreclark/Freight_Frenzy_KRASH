@@ -140,7 +140,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, 850, 0.6, 5 - armDelay);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 750, 0.6, 5 - armDelay);
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();

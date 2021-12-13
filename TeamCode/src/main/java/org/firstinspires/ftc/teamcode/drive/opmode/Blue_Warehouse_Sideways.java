@@ -77,7 +77,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         //Pickup
         TrajectorySequence outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(drop.end())
                 .lineToLinearHeading(outsideWarehouse)
-                .strafeLeft(5)
+                .strafeLeft(3)
                 .build();
 
         park = robot.drive.trajectoryBuilder(drop.end())
@@ -134,10 +134,12 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
+        robot.drive.updatePoseEstimate();
         Pose2d positionCheck = robot.drive.getPoseEstimate();
         telemetry.addData("X Position", positionCheck.getX());
         telemetry.update();
 
+        //Check to make sure we didn't get stuck and correct position if necessary
         if (positionCheck.getX() > 20.0) {
             gotIt = robot.arm.intakeSense(3);
             telemetry.addData("Got block:", gotIt);
@@ -145,9 +147,10 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         } else {
             outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(positionCheck)
                     .lineToLinearHeading(outsideWarehouse)
-                    .strafeLeft(5)
+                    .strafeLeft(3)
                     .build();
             robot.drive.followTrajectorySequence(outsideWarehouseSequence);
+            gotIt = false;
         }
 
         //Uncomment the line below to skip cycling and park in the warehouse near the shared hub
@@ -193,7 +196,7 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             }
         }
 
-
+        robot.drive.updatePoseEstimate();
         TrajectorySequence finalParkSeq = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
                 .lineTo(insideWarehouse.vec())
                 .lineToLinearHeading(midPointParking)
