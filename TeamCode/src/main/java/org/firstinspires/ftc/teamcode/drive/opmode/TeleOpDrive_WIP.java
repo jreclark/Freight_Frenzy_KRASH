@@ -16,7 +16,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     public double turnPower;
     public double leftFrontPower, leftRearPower, rightFrontPower, rightRearPower;
     public double scaleFactor;
-    public boolean lowPowerMode = false;
+    public boolean lowPowerMode = true;
     public boolean armIsMoving = false;
     public boolean turretIsMoving = false;
     public int armStartedLocation = 0;
@@ -131,7 +131,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     }
 
     private void armToFrontIntake() {
-        double armDelay = 2.0; //Wait for turret before pivoting arm
+        double armDelay = 1.0; //Wait for turret before pivoting arm
         if (manipA.getCurrentPress()) {
             if (manipA.newPress()) {
                 moveStart = clock.seconds();
@@ -140,7 +140,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.INTAKE_EXTENSION_COUNTS, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, 750, 0.6, 5 - armDelay);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 600, 0.6, 5 - armDelay);
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();
@@ -158,7 +158,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
             if (manipB.newPress()) {
                 robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(Arm.HubLevel.MIDDLE), 0.8, 5);
                 robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.SIDE_TURRET_LIMIT, 1.0, 5);
-                robot.arm.moveExtensionToTarget(Arm.MovingMode.START, robot.arm.MIDDLE_EXTENSION_COUNTS, 0.8, 5);
+                robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -200, 0.8, 5);
             } else {
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
@@ -168,7 +168,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
     }
 
     private void armToBackIntake() {
-        double armDelay = 2.0; //Wait for turret before pivoting arm
+        double armDelay = 1.0; //Wait for turret before pivoting arm
         if (manipY.getCurrentPress()) {
             if (manipY.newPress()) {
                 moveStart = clock.seconds();
@@ -178,7 +178,7 @@ public class TeleOpDrive_WIP extends LinearOpMode {
                 robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -400, 0.8, 5);
             } else if (getElapsedTime(moveStart) >= armDelay && !midMove) {
                 midMove = true;
-                robot.arm.moveArmToTarget(Arm.MovingMode.START, 700, 0.4, 5 - armDelay);
+                robot.arm.moveArmToTarget(Arm.MovingMode.START, 500, 0.4, 5 - armDelay);
                 robot.arm.armIsBusy();
                 robot.arm.turretIsBusy();
                 robot.arm.extensionIsBusy();

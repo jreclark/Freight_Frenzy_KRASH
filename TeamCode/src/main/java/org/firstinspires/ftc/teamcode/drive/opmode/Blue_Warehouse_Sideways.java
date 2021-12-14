@@ -145,12 +145,19 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             telemetry.addData("Got block:", gotIt);
             telemetry.update();
         } else {
+            robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
+            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
+
             outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(positionCheck)
                     .lineToLinearHeading(outsideWarehouse)
                     .strafeLeft(3)
                     .build();
-            robot.drive.followTrajectorySequence(outsideWarehouseSequence);
+            robot.drive.followTrajectorySequenceAsync(outsideWarehouseSequence);
             gotIt = false;
+
+            while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
+                robot.drive.update();
+            }
         }
 
         //Uncomment the line below to skip cycling and park in the warehouse near the shared hub
@@ -218,16 +225,14 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
         robot.arm.useIntake(-0.8);
 
+        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
+        }
+
         grab = robot.drive.trajectoryBuilder(finalWarehousePosition)
                 .back(10)
                 .build();
 
-        robot.drive.followTrajectoryAsync(grab);
-
-        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
-            robot.drive.update();
-        }
-
+        robot.drive.followTrajectory(grab);
 
         gotIt = robot.arm.intakeSense(5);
         telemetry.addData("Got block:", gotIt);
