@@ -36,6 +36,11 @@ public class Arm {
 
     public final int TURRET_RANGE = FORWARD_TURRET_LIMIT - REVERSE_TURRET_LIMIT;
 
+    public final double DROP_HIGH = -0.5;
+    public final double DROP_MID = -0.9;
+    public final double DROP_LOW = -0.9;
+
+
     private NanoClock clock = NanoClock.system();
 
     private double armStartClock;
@@ -341,6 +346,17 @@ public class Arm {
         return moveTurretToTarget(MovingMode.RUNNING, 0, 0, 0);
     }
 
+    public double dropPower(HubLevel level){
+        switch(level){
+            case TOP:
+                return DROP_HIGH;
+            case MIDDLE:
+                return DROP_MID;
+            case BOTTOM:
+                return DROP_LOW;
+        }
+        return DROP_LOW;
+    }
 }
 
 

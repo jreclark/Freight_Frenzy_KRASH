@@ -140,7 +140,7 @@ public class Red_Carousel_Sideways extends LinearOpMode {
 
         robot.arm.moveArmToTarget(Arm.MovingMode.STOP,0,0,1);
 
-        robot.arm.spitIntake(-0.6);
+        robot.arm.spitIntake(robot.arm.dropPower(hubLevel));
 
 
         /** Raise arm to get it out of the way and move to park location or begin moving towards warehouse*/

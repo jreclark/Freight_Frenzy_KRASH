@@ -6,8 +6,10 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.Arm;
+import org.firstinspires.ftc.teamcode.drive.KRASHMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.Robot;
 import org.firstinspires.ftc.teamcode.drive.TensorFlowObjectDetectionWebcam;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
@@ -20,7 +22,7 @@ import static org.firstinspires.ftc.teamcode.drive.KRASHMecanumDrive.getAccelera
 import static org.firstinspires.ftc.teamcode.drive.KRASHMecanumDrive.getVelocityConstraint;
 
 @Autonomous
-public class Blue_Warehouse_Sideways extends LinearOpMode {
+public class Red_Warehouse_MultiCycle extends LinearOpMode {
 
     public Robot robot;
     public TensorFlowObjectDetectionWebcam tfod;
@@ -31,31 +33,34 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
     private Trajectory carousel;
     private Trajectory park, park1, park2, park3;
 
+    TrajectorySequence outsideWarehouseSequence;
+
     public boolean parkInStorage = false;
     boolean gotIt = false;
 
     public Arm.HubLevel hubLevel = null;
 
-    private static final TrajectoryVelocityConstraint SLOW_CONSTRAINT = getVelocityConstraint(MAX_VEL * 0.4, MAX_ANG_VEL, TRACK_WIDTH);
+    private static final TrajectoryVelocityConstraint SLOW_CONSTRAINT = getVelocityConstraint(MAX_VEL * 0.5, MAX_ANG_VEL, TRACK_WIDTH);
     private static final TrajectoryAccelerationConstraint SLOW_ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
 
 
-    Pose2d startingPose = new Pose2d(13, 63, Math.toRadians(-179.99));
-    Pose2d dropLocation = new Pose2d(-3.0, 45.0, Math.toRadians(-108));
-    Pose2d secondDropLocation = new Pose2d(-0.5, 41.5, Math.toRadians(-127));
+    Pose2d startingPose = new Pose2d(10, -63.5, Math.toRadians(0));
+    Pose2d dropLocation = new Pose2d(-2, -46, Math.toRadians(120));
+    Pose2d secondDropLocation = new Pose2d(-4, -44, Math.toRadians(120));
 
-    Pose2d outsideWarehouse = new Pose2d(8, 65, Math.toRadians(0));
-    Pose2d insideWarehouse = new Pose2d(38, 66, Math.toRadians(0));
-    Pose2d midPointParking = new Pose2d(45, 45, Math.toRadians(45));
-    Pose2d finalWarehousePosition = new Pose2d(66, 39, Math.toRadians(-85));
+    Pose2d outsideWarehouse = new Pose2d(12, -65, Math.toRadians(0));
+    Pose2d insideWarehouse = new Pose2d(38, -66, Math.toRadians(0));
+    Pose2d midPointParking = new Pose2d(45, -45, Math.toRadians(-45));
+    Pose2d finalWarehousePosition = new Pose2d(66, -39, Math.toRadians(-92));
 
-    Pose2d grab1 = new Pose2d(45, 66, Math.toRadians(0));
+    Pose2d grab1 = new Pose2d(48, -66, Math.toRadians(0));
 
-    Pose2d backup1 = new Pose2d(8, 65, Math.toRadians(0));
+    //Pose2d backup1 = new Pose2d(10, -65, Math.toRadians(180));
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
+        ElapsedTime runtime = new ElapsedTime();
         robot = new Robot(hardwareMap);
         tfod = new TensorFlowObjectDetectionWebcam(hardwareMap, telemetry);
 
@@ -75,9 +80,9 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
                 .build();
 
         //Pickup
-        TrajectorySequence outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(drop.end())
+        outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(drop.end())
                 .lineToLinearHeading(outsideWarehouse)
-                .strafeLeft(3)
+                //.strafeRight(5)
                 .build();
 
         park = robot.drive.trajectoryBuilder(drop.end())
@@ -88,15 +93,15 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
                 .lineTo(insideWarehouse.vec())
                 .build();
 
-
-
-        while (!isStarted()) {
+        while (!isStarted() && !isStopRequested()) {
             markerLocation = tfod.locateMarker();
             hubLevel = robot.arm.markerToLevel(markerLocation);
             telemetry.addData("Centerx: ", tfod.getCenterTrack());
             telemetry.addData("Marker Location:", markerLocation);
             telemetry.update();
         }
+
+        runtime.reset();
 
         //Initial Drop
         robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.getArmTarget(hubLevel), 0.8, 5);
@@ -117,13 +122,24 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
         while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
             robot.drive.update();
         }
+        robot.drive.strafeToWall(KRASHMecanumDrive.Direction.RIGHT, 500);
 
+        while((30 - runtime.time()) > 7){
+            cycle();
+        }
 
+        finalParkSequence();
+
+        tfod.shutdown();
+    }
+
+    public void cycle(){
+        //Enter warehouse and attempt to grab a block.  Assumes we are already lined up outside the warehouse tight to the wall.
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.9, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
         robot.arm.useIntake(-0.8);
-        //robot.drive.followTrajectoryAsync(park1);
 
+        robot.drive.updatePoseEstimate();
         Trajectory grab = robot.drive.trajectoryBuilder(robot.drive.getPoseEstimate())
                 .lineToLinearHeading(grab1, SLOW_CONSTRAINT, SLOW_ACCEL_CONSTRAINT)
                 .build();
@@ -145,27 +161,23 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             telemetry.addData("Got block:", gotIt);
             telemetry.update();
         } else {
-            robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
             robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
 
             outsideWarehouseSequence = robot.drive.trajectorySequenceBuilder(positionCheck)
                     .lineToLinearHeading(outsideWarehouse)
-                    .strafeLeft(3)
                     .build();
             robot.drive.followTrajectorySequenceAsync(outsideWarehouseSequence);
             gotIt = false;
-
             while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
                 robot.drive.update();
             }
+            robot.drive.strafeToWall(KRASHMecanumDrive.Direction.RIGHT, 500);
         }
 
-        //Uncomment the line below to skip cycling and park in the warehouse near the shared hub
-        //gotIt = false;
-
+        //If we got a block, go ahead and place it.
         if (gotIt) {
+            robot.drive.strafeToWall(KRASHMecanumDrive.Direction.RIGHT, 500);
             TrajectorySequence backout = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
-                    .strafeLeft(2)
                     .back(38)
                     .build();
             robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 0.8, 5);
@@ -194,42 +206,46 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
                 robot.drive.update();
             }
+            robot.drive.strafeToWall(KRASHMecanumDrive.Direction.RIGHT, 500);
+
 
         } else {
-            robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
-            robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
+            robot.drive.setDriveMotors(-0.6, +0.5,0);
+            sleep(400);
+            robot.drive.setDriveMotors(0,0,0);
+        }
 
-            while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
-            }
+    }
+
+    public void finalParkSequence(){
+        //Final parking sequence.  Assumes we are just outside the warehouse and tight against the wall
+        robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -50, 0.8, 5);
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, robot.arm.SAFE_HIGH_ARM, 1.0, 5);
+
+        while (robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy()) {
         }
 
         robot.drive.updatePoseEstimate();
         TrajectorySequence finalParkSeq = robot.drive.trajectorySequenceBuilder(robot.drive.getPoseEstimate())
                 .lineTo(insideWarehouse.vec())
                 .lineToLinearHeading(midPointParking)
-                .turn(Math.toRadians(180))
                 .lineToLinearHeading(finalWarehousePosition)
                 .build();
 
-        //Move turret for 3 seconds to give it a head start.  This turret may not finish before timeout
-        robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.BACK_TURRET_LIMIT, 1.0, 3);
         robot.drive.followTrajectorySequence(finalParkSeq);
         while(robot.drive.isBusy() || robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
             robot.drive.update();
         }
 
-
-        //Flip arm to back intake position
-        robot.arm.moveTurretToTarget(Arm.MovingMode.START, robot.arm.BACK_TURRET_LIMIT, 1.0, 5);
         robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.8, 5);
         robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
         robot.arm.useIntake(-0.8);
 
-        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy() || robot.arm.turretIsBusy()){
+        while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
         }
 
-        grab = robot.drive.trajectoryBuilder(finalWarehousePosition)
-                .back(10)
+        Trajectory grab = robot.drive.trajectoryBuilder(finalWarehousePosition)
+                .forward(10)
                 .build();
 
         robot.drive.followTrajectory(grab);
@@ -243,10 +259,9 @@ public class Blue_Warehouse_Sideways extends LinearOpMode {
             while(robot.arm.armIsBusy() || robot.arm.extensionIsBusy()){
             }
         }
-
-        tfod.shutdown();
-
     }
+
+
 
 
 }

@@ -106,7 +106,7 @@ public class Red_Warehouse_Sideways extends LinearOpMode {
             robot.drive.update();
         }
 
-        robot.arm.spitIntake(-0.5);
+        robot.arm.spitIntake(robot.arm.dropPower(hubLevel));
         sleep(500);
 
         //Move arm high to avoid hitting anything and move to wall near warehouse

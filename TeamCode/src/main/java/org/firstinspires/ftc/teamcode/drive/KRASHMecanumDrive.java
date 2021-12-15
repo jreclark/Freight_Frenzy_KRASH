@@ -49,12 +49,18 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.encoderTicksTo
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
+import static org.firstinspires.ftc.teamcode.util.Sleep.sleep;
 
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
  */
 @Config
 public class KRASHMecanumDrive extends MecanumDrive {
+    public enum Direction {
+        LEFT,
+        RIGHT
+    }
+
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(12, 0, 0);
 
@@ -375,6 +381,33 @@ public class KRASHMecanumDrive extends MecanumDrive {
         carouselServo.setPower(power);
     }
 
+    public void setDriveMotors(double drivePower, double strafePower, double turnPower) {
 
+        double leftFrontPower = drivePower + turnPower + strafePower;
+        double leftRearPower = drivePower + turnPower - strafePower;
+        double rightFrontPower = drivePower - turnPower + strafePower;
+        double rightRearPower = drivePower - turnPower - strafePower;
+
+        double scaleFactor = scalePower(leftFrontPower, leftRearPower, rightFrontPower, rightRearPower);
+
+        leftFrontPower = scaleFactor * leftFrontPower;
+        leftRearPower = scaleFactor * leftRearPower;
+        rightFrontPower = scaleFactor * rightFrontPower;
+        rightRearPower = scaleFactor * rightRearPower;
+
+        setMotorPowers(leftFrontPower, leftRearPower, rightFrontPower, rightRearPower);
+    }
+
+    public void strafeToWall(Direction direction, long time) {
+        double sign = 1;
+        if (direction == Direction.LEFT) {
+            sign = -1;
+        } else if (direction == Direction.RIGHT) {
+            sign = 1;
+        }
+        setDriveMotors(0, 0.8 * sign, 0);
+        sleep(time);
+        setDriveMotors(0, 0, 0);
+    }
 
 }
