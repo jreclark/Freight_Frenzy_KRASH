@@ -40,7 +40,7 @@ public class Blue_Warehouse_MultiCycle extends LinearOpMode {
 
     public Arm.HubLevel hubLevel = null;
 
-    private static final TrajectoryVelocityConstraint SLOW_CONSTRAINT = getVelocityConstraint(MAX_VEL * 0.4, MAX_ANG_VEL, TRACK_WIDTH);
+    private static final TrajectoryVelocityConstraint SLOW_CONSTRAINT = getVelocityConstraint(MAX_VEL * 0.6, MAX_ANG_VEL, TRACK_WIDTH);
     private static final TrajectoryAccelerationConstraint SLOW_ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
 
@@ -49,7 +49,7 @@ public class Blue_Warehouse_MultiCycle extends LinearOpMode {
     Pose2d dropLocation = new Pose2d(-3.0, 45.0, Math.toRadians(-108));
     Pose2d secondDropLocation = new Pose2d(-0.5, 41.5, Math.toRadians(-127));
 
-    Pose2d outsideWarehouse = new Pose2d(8, 65, Math.toRadians(0));
+    Pose2d outsideWarehouse = new Pose2d(8, 63, Math.toRadians(0));//was 65
     Pose2d insideWarehouse = new Pose2d(38, 66, Math.toRadians(0));
     Pose2d midPointParking = new Pose2d(45, 45, Math.toRadians(45));
     Pose2d finalWarehousePosition = new Pose2d(66, 39, Math.toRadians(-85));
@@ -137,8 +137,8 @@ public class Blue_Warehouse_MultiCycle extends LinearOpMode {
 
     public void cycle(){
         //Enter warehouse and attempt to grab a block.  Assumes we are already lined up outside the warehouse tight to the wall.
-        robot.arm.moveArmToTarget(Arm.MovingMode.START, 300, 0.9, 5);
-        robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -300, 0.8, 5);
+        robot.arm.moveArmToTarget(Arm.MovingMode.START, 525, 0.9, 5);
+        robot.arm.moveExtensionToTarget(Arm.MovingMode.START, -450, 0.8, 5);
         robot.arm.useIntake(-0.8);
 
         robot.drive.updatePoseEstimate();
